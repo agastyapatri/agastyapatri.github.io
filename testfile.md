@@ -1,1 +1,5 @@
-# Testing a new page added in my github.io website
+---
+title: Testpage
+layout: template
+filename: NAME OF THIS .md FILE HERE
+--- 
