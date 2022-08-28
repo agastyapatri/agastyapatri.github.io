@@ -7,12 +7,8 @@ url: agastyapatri.github.io
 twitter_username: papyruspatri
 github_username:  agastyapatri
 
-# Build settings
-markdown: kramdown
-permalink: pretty
 
-highlighter: rouge
-kramdown:
-  input: GFM
-  auto_ids: true
-  syntax_highlighter: rouge
+# Aux links for the upper right navigation
+aux_links:
+  "Just the Docs on GitHub":
+    - "//github.com/agastyapatri/agastyapatri.github.io"
