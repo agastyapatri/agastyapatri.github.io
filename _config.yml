@@ -1,3 +1,18 @@
+# Site Settings 
 remote_theme: just-the-docs/just-the-docs
 title: Agastya Patri
 description: labours of love
+url: agastyapatri.github.io
+
+twitter_username: papyruspatri
+github_username:  agastyapatri
+
+# Build settings
+markdown: kramdown
+permalink: pretty
+
+highlighter: rouge
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
