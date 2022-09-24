@@ -1,2 +1,2 @@
-# **What is this blog about?**
-A collection of my many labours of love. 
+# **Labours of love.**
+This website is an attempt to carve out my own little crevice in the canyon that is the internet. 
