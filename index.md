@@ -1,2 +1,2 @@
-# **Agastya Patri's Homepage.**
-This set of webpages is a documentation of my many labours of love. 
+# **What is this blog about?**
+A collection of my many labours of love. 
