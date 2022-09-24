@@ -10,5 +10,15 @@ github_username:  agastyapatri
 
 # Aux links for the upper right navigation
 aux_links:
-  "Just the Docs on GitHub":
+  "My Github":
     - "//github.com/agastyapatri/agastyapatri.github.io"
+aux_links_new_tab: true
+search_enabled: true
+
+back_to_top: true
+back_to_top_text: "Back to top"
+
+footer_content: "Agastya Patri loves you"
+
+color_scheme: dark 
+
