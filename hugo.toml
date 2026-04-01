@@ -1,0 +1,49 @@
+baseURL = "agastyapatri.github.io"
+languageCode = "en-us"
+title = "Agastya Patri"
+subtitle = "Machine Learning Systems"
+theme = "archie"
+copyright = "© Agastya Patri"
+pygmentsstyle = "monokai"
+pygmentscodefences = true
+pygmentscodefencesguesssyntax = true
+[params]
+	mode = "light"
+	useCDN = false
+	subtitle = "Machine Learning + Physics, Systems and more!"
+	customCSS = ["css/custom.css"]
+	summaryLength = 50
+
+[[params.social]]
+name = "GitHub"
+icon = "github"
+url = "https://github.com/agastyapatri"
+
+[[params.social]]
+name = "Substack"
+icon = "static/substack-icon.svg"
+url = "https://substack.com/@agastyapatri"
+
+[[menu.main]]
+name = "Home"
+url = "/"
+weight = 1
+
+
+[[menu.main]]
+name = "Posts"
+url = "/posts"
+weight = 3
+
+[[menu.main]]
+name = "Tags"
+url = "/tags"
+weight = 5
+
+[markup]
+	[markup.goldmark]
+		[markup.goldmark.renderer]
+			unsafe = true
+
+
+publishDir = ".."

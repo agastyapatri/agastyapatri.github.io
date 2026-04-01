@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Agastya Patri</title>
+    <link>http://localhost:1313/posts/</link>
+    <description>Recent content in Posts on Agastya Patri</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <copyright>© Agastya Patri</copyright>
+    <lastBuildDate>Fri, 27 Mar 2026 06:53:50 +0530</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>microgpt-c</title>
+      <link>http://localhost:1313/posts/microgpt-c/</link>
+      <pubDate>Fri, 27 Mar 2026 06:53:50 +0530</pubDate>
+      <guid>http://localhost:1313/posts/microgpt-c/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://karpathy.github.io/2026/02/12/microgpt/&#34;&gt;Following Andrej Karpathy&amp;rsquo;s 200 line python implementation of GPT-2&lt;/a&gt;, I wanted to try porting it to C as an exercise in learning the language. This post will lay out my approach in re-implementing microgpt in C with nothing but the standard library.&lt;/p&gt;&#xA;&lt;p&gt;``&lt;/p&gt;&#xA;&lt;h2 id=&#34;scalar-valued-automatic-differentiation&#34;&gt;Scalar Valued Automatic Differentiation&lt;/h2&gt;&#xA;&lt;p&gt;The (admittedly handwavy) recipe for implementing your own backprop engine is simple:&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Wrap your data in a &lt;code&gt;struct ad_value&lt;/code&gt;:&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; ad_value {&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        OPTYPE op;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; data;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; grad;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; ref_count;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt; is_param;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt; visited;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; ad_value&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; previous[NUM_PREVS]; &#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;} ad_value;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Track the operation that was used to create a &lt;code&gt;ad_value&lt;/code&gt;, along with its parents &lt;code&gt;previous[0] and previous[1]&lt;/code&gt;&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
