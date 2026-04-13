@@ -1,10 +1,9 @@
 baseURL = "https://agastyapatri.github.io/"
 languageCode = "en-us"
 title = "Agastya Patri"
-subtitle = "Machine Learning Systems"
 theme = "archie"
 copyright = "© Agastya Patri"
-pygmentsstyle = "monokai"
+pygmentsstyle = "perldoc"
 pygmentscodefences = true
 pygmentscodefencesguesssyntax = true
 [params]
@@ -16,12 +15,12 @@ pygmentscodefencesguesssyntax = true
 
 [[params.social]]
 name = "GitHub"
-icon = "github"
+icon = "simple:github"
 url = "https://github.com/agastyapatri"
 
 [[params.social]]
 name = "Substack"
-icon = "static/substack-icon.svg"
+icon = "simple:substack"
 url = "https://substack.com/@agastyapatri"
 
 [[menu.main]]
