@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html><head lang="en"><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
 	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>microgpt-c - Agastya Patri</title><meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="Training a tiny GPT to generate new names, from scratch, in C." />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>microgpt-c Part 1: Automatic Differentiation and Baseline Performance - Agastya Patri</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Creating a Backprop Engine for a tiny GPT" />
 	<meta property="og:image" content="http://localhost:1313/"/>
 	<meta property="og:url" content="http://localhost:1313/posts/microgpt-c/">
   <meta property="og:site_name" content="Agastya Patri">
-  <meta property="og:title" content="microgpt-c">
-  <meta property="og:description" content="Training a tiny GPT to generate new names, from scratch, in C.">
+  <meta property="og:title" content="microgpt-c Part 1: Automatic Differentiation and Baseline Performance">
+  <meta property="og:description" content="Creating a Backprop Engine for a tiny GPT">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2026-04-08T06:53:50+05:30">
-    <meta property="article:modified_time" content="2026-04-08T06:53:50+05:30">
+    <meta property="article:published_time" content="2026-04-13T19:45:50+05:30">
+    <meta property="article:modified_time" content="2026-04-13T19:45:50+05:30">
     <meta property="article:tag" content="Llms">
     <meta property="article:tag" content="C">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="microgpt-c">
-  <meta name="twitter:description" content="Training a tiny GPT to generate new names, from scratch, in C.">
+  <meta name="twitter:title" content="microgpt-c Part 1: Automatic Differentiation and Baseline Performance">
+  <meta name="twitter:description" content="Creating a Backprop Engine for a tiny GPT">
 <link rel="stylesheet" href="http://localhost:1313/css/simple-icons.cc125cfd7958efc8dc27b5dfa6e2a9bbab933ce50b754f77e669e587c16ce857.css" type="text/css"><link rel="stylesheet" href="http://localhost:1313/css/simple-icons.cc125cfd7958efc8dc27b5dfa6e2a9bbab933ce50b754f77e669e587c16ce857.css" type="text/css">
         <link href="http://localhost:1313/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
 	
@@ -41,6 +41,8 @@
 		
 		<a href="/posts">Posts</a>
 		
+		<a href="/projects/">Projects</a>
+		
 		<a href="/tags">Tags</a>
 		
 		
@@ -53,13 +55,13 @@
       
       <div class="post-content">
         <div class="title">
-          <h1 class="title">microgpt-c</h1>
-          <div class="meta">Posted on Apr 8, 2026 <span class="draft-label">DRAFT</span> </div>
+          <h1 class="title">microgpt-c Part 1: Automatic Differentiation and Baseline Performance</h1>
+          <div class="meta">Posted on Apr 13, 2026</div>
         </div>
         
         <section class="body">
-          <p><a href="https://karpathy.github.io/2026/02/12/microgpt/">Following Andrej Karpathy&rsquo;s 200 line python implementation of GPT-2</a>, I wanted to try porting it to C as an exercise in learning the language. This post will lay out my approach in re-implementing microgpt with nothing but the C standard library.</p>
-<p>The full code for this project can be found on <a href="https://github.com/agastyapatri/microgpt-c">Github</a></p>
+          <p><a href="https://karpathy.github.io/2026/02/12/microgpt/">microgpt, by Andrej Karpathy</a> is a 200 line python implementation of GPT-2. It is trained on a set of names, and attempts to train a model to generate new ones. Following this, I wanted to try porting it to C as an exercise in learning the language. <strong>This post will lay out my approach to implementing an autodifferentiation engine with nothing but the C standard library</strong>.  It&rsquo;s recommended that one reads the original post, along with <a href="https://growingswe.com/blog/microgpt">growingswe&rsquo;s visual explainer</a> for more background on GPT-2 itself.</p>
+<p>The full code for this project can be found on <a href="https://github.com/agastyapatri/microgpt-c">Github</a>. Note that the current state of this project is focused on simplicity and ease of grasp.</p>
 <h2 id="scalar-valued-reverse-mode-automatic-differentiation">Scalar Valued <a href="https://en.wikipedia.org/wiki/Automatic_differentiation#Reverse_accumulation:~:text=0%3B%20%7D-,Reverse%20accumulation">Reverse Mode Automatic Differentiation</a></h2>
 <p>The (admittedly handwavy) recipe for implementing your own backprop engine is simple:</p>
 <ol>
@@ -88,10 +90,10 @@
 <p>Sort your computational graph, formed after math done sequentially with <code>ad_value_&lt;math&gt;</code>.</p>
 </li>
 <li>
-<p>Step through the sorted graph and propagate the local gradient starting from the root node, which in most cases is a scalar valued loss function. Et Voila!</p>
+<p>Step through the sorted graph and propagate the local gradient starting from the root node, which in most cases is a scalar valued loss function.</p>
 </li>
 </ol>
-<p>Not quite. Most C specific minutiae crop up from manually having to manage the lifetime and memory of the nodes in the computational graph. Let&rsquo;s talk about it.</p>
+<p>Most C specific minutiae crop up from manually having to manage the lifetime and memory of the nodes in the computational graph. Let&rsquo;s talk about it.</p>
 <h2 id="creation-and-destruction-of-ad_value">Creation and Destruction of <code>ad_value</code></h2>
 <p>Here&rsquo;s how <code>ad_value</code> is created:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>ad_value* <span style="color:#008b45">ad_value_alloc</span>(<span style="color:#00688b;font-weight:bold">float</span> data){
@@ -114,7 +116,7 @@
 <li>Computation graphs require an expression of shared ownership. Heap allocations provide that.</li>
 </ul>
 <p>Understandably, having thousands of <code>malloc</code> and <code>free</code> calls is not something anyone prefers. Arena allocators would speed things up significantly. For simplicity&rsquo;s sake however, I&rsquo;ve kept it as is.</p>
-<p>The <code>ref_count</code> parameter is my humble attempt at implementing a managing <code>ad_value</code> lifetimes with reference counting. The idea is that each <code>ad_value</code> keeps track of how many other <code>ad_value</code>s refer to it. When the reference counter hits 0, the <code>ad_value</code> memory is freed. The main reason to do this is that accidentally freeing a random <code>ad_value</code> in the computational graph and trying to backpropagate through it would be catastrophic; a problem given the colloquialism of &ldquo;use-after-free&rdquo;. This would also be a nightmare to debug for a novice C programmer. This is slightly different from the textbook definition of the technique, in which a resource is shared among multiple objects which point to it, and is freed when the reference counter hits 0.</p>
+<p>The <code>ref_count</code> parameter is my humble attempt at implementing the managing of <code>ad_value</code> lifetimes with reference counting. The idea is that each <code>ad_value</code> keeps track of how many other <code>ad_value</code>s refer to it. When the reference counter hits 0, the <code>ad_value</code> memory is freed. The main reason to do this is that accidentally freeing a random <code>ad_value</code> in the computational graph and trying to backpropagate through it would be catastrophic; the infamous &ldquo;use-after-free&rdquo;. This would also be a nightmare to debug for a novice C programmer. This is slightly different from the textbook definition of the technique, in which a resource is shared among multiple objects which point to it, and is freed when the reference counter hits 0.</p>
 <p><code>ad_value</code>s are freed recursively:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00688b;font-weight:bold">void</span> <span style="color:#008b45">ad_value_free</span>(ad_value* val){
 </span></span><span style="display:flex;"><span>	val-&gt;ref_count--;
@@ -128,7 +130,7 @@
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Simply calling the function <code>ad_value_free</code> decrements the target&rsquo;s reference counter - one less ad_value now refers to it. If no other <code>ad_value</code>s are referring to it, it is let go. This triggers an <code>ad_value_free</code> call for the parent nodes as well, because a reference to the parent is being freed. To understand this better, one needs to understand how a link between two <code>ad_value</code>s is formed.</p>
 <h2 id="ad_value-mathematics"><code>ad_value</code> Mathematics</h2>
-<p>One of the primary assumptions of automatic differentiation (autodiff) is that any function represented programmatically can be decomposed into a sequence of more primitive calculations; a principle known as atomicity. We need to make sure that the library of mathematical functions for <code>ad_value</code> enables atomicity and the use of the <a href="https://en.wikipedia.org/wiki/Chain_rule">chain rule</a>.</p>
+<p>One of the primary assumptions of automatic differentiation (autodiff) is that any function represented programmatically can be decomposed into a sequence of more primitive &ldquo;atomic&rdquo; calculations. We need to make sure that the library of mathematical functions for <code>ad_value</code> enables atomicity and the use of the <a href="https://en.wikipedia.org/wiki/Chain_rule">chain rule</a>.</p>
 <p>To that end, I&rsquo;ve chosen to represent these atomic operations as an <code>enum</code>:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8b008b;font-weight:bold">typedef</span> <span style="color:#8b008b;font-weight:bold">enum</span> {
 </span></span><span style="display:flex;"><span>    NONE,
@@ -174,7 +176,27 @@ The current set of operations in <code>enum OPTYPE</code> was more than enough t
 </span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>	uint nbytes;        <span style="color:#228b22">//  rows*cols*sizeof(ad_value*)
 </span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>	ad_value** data;    <span style="color:#228b22">//  flat representation
 </span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>} ad_matrix;
-</span></span></code></pre></div><p>I prefer to think of this simply as an array of <code>ad_value</code> instances instead of a matrix-valued autodifferentiation solution. Each element of an <code>ad_matrix</code> is a seperate parameter in the neural net, which needs to be updated independently. A true matrix implementation would be leagues faster. We&rsquo;re now ready to actually start building the network.</p>
+</span></span></code></pre></div><p>I prefer to think of this simply as an array of <code>ad_value</code> instances instead of a matrix-valued autodifferentiation solution. Each element of an <code>ad_matrix</code> is a separate parameter in the neural net, which needs to be updated independently. A true matrix implementation would be leagues faster. We&rsquo;re now ready to actually start building the network.</p>
+<p><code>ad_matrix</code> instances are created by <code>ad_matrix_alloc</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>ad_matrix* <span style="color:#008b45">ad_matrix_alloc</span>(uint nrows, uint ncols){
+</span></span><span style="display:flex;"><span>	uint size = nrows * ncols; 
+</span></span><span style="display:flex;"><span>	ad_matrix* m = (ad_matrix*)<span style="color:#008b45">malloc</span>(<span style="color:#8b008b;font-weight:bold">sizeof</span>(ad_matrix));
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">if</span>(!m){
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">return</span> <span style="color:#658b00">NULL</span>;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#008b45">AD_MATRIX_SHAPE_INIT</span>(m, nrows, ncols);
+</span></span><span style="display:flex;"><span>	m-&gt;nbytes =size * <span style="color:#8b008b;font-weight:bold">sizeof</span>(ad_value*); 
+</span></span><span style="display:flex;"><span>	m-&gt;data = (ad_value**)<span style="color:#008b45">malloc</span>(size * <span style="color:#8b008b;font-weight:bold">sizeof</span>(ad_value*));
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">if</span>(!m-&gt;data){
+</span></span><span style="display:flex;"><span>		<span style="color:#008b45">free</span>(m);
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">return</span> <span style="color:#658b00">NULL</span>;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">for</span>(uint i = <span style="color:#b452cd">0</span>; i &lt; size; i++){
+</span></span><span style="display:flex;"><span>		m-&gt;data[i] = <span style="color:#008b45">ad_value_alloc</span>(<span style="color:#b452cd">0</span>);
+</span></span><span style="display:flex;"><span>	} 
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">return</span> m;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>ad_matrix_alloc</code> creates an initial set of <code>ad_value</code>s, all initialized with <code>value = 0</code> and <code>op = NONE</code>.</p>
 <p>PyTorch&rsquo;s <code>nn.Module</code> has parameters which can be accessed via the <code>nn.Module.parameters()</code> attribute. PyTorch also provides a <code>nn.Module.state_dict()</code> which maps each layer to it&rsquo;s parameter tensor. Karpathy refers to this as the knowledge of the model.
 The original microgpt replicates this behaviour with a <code>state_dict</code> dictionary with the signature:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>state_dict = {
@@ -188,7 +210,7 @@ The original microgpt replicates this behaviour with a <code>state_dict</code> d
 </span></span><span style="display:flex;"><span>    <span style="color:#cd5555">&#34;layeri.mlp_fc1&#34;</span>:matrix,    <span style="color:#228b22">#   fully connected matrix of the ith layer </span>
 </span></span><span style="display:flex;"><span>    <span style="color:#cd5555">&#34;layeri.mlp_fc2&#34;</span>:matrix,    <span style="color:#228b22">#   fully connected matrix of the ith layer </span>
 </span></span><span style="display:flex;"><span>    .... }
-</span></span></code></pre></div><p>C doesn&rsquo;t have hash tables, we have to fall back to the trusty struct + indexing method. The layer-wise parameters are impelemented as arrays of <code>ad_matrix</code> pointers. <code>state_dict[&quot;layer0.attn_wv&quot;]</code> becomes <code>state_dict.attn_wv[i]</code></p>
+</span></span></code></pre></div><p>C doesn&rsquo;t have hash tables, we have to fall back to the trusty struct + indexing method. The layer-wise parameters are implemented as arrays of <code>ad_matrix</code> pointers. <code>state_dict[&quot;layer0.attn_wv&quot;]</code> becomes <code>state_dict.attn_wv[i]</code>. The layer-wise matrices in <code>state_dict</code> are implemented as arrays of <code>ad_matrix*</code>, and take the form of <code>ad_matrix**</code>. Dereferencing at the desired layer index will yield the desired <code>ad_matrix*</code></p>
 <div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8b008b;font-weight:bold">typedef</span> <span style="color:#8b008b;font-weight:bold">struct</span> state_dict{
 </span></span><span style="display:flex;"><span>	<span style="color:#00688b;font-weight:bold">size_t</span> 		embd_dim;		<span style="color:#228b22">//	embedding dimensions 
 </span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>	<span style="color:#00688b;font-weight:bold">size_t</span> 		num_heads;		<span style="color:#228b22">//	number of attention heads 
@@ -201,19 +223,232 @@ The original microgpt replicates this behaviour with a <code>state_dict</code> d
 </span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>	ad_matrix** attn_wq;		<span style="color:#228b22">//	array of query weight matrices for each layer
 </span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>	ad_matrix** attn_wk;		<span style="color:#228b22">// 	array of key weight matrices for each layer	
 </span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>	ad_matrix** attn_wv;   		<span style="color:#228b22">// 	array of value weight matrices for each layer	 
-</span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>	ad_matrix** attn_wo;		<span style="color:#228b22">// 	array of output?? matrices for each layer
+</span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>	ad_matrix** attn_wo;		<span style="color:#228b22">// 	array of output matrices for each layer
 </span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>	ad_matrix** mlp_fc1;		<span style="color:#228b22">// 	array of fully connected portions of each layer
 </span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>	ad_matrix** mlp_fc2;		<span style="color:#228b22">// 	array of fully connected portions of each layer
 </span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span>} state_dict;
 </span></span></code></pre></div><p>You&rsquo;d have noticed the <code>is_param</code> flag in the <code>ad_value</code> struct; it notes which <code>ad_value</code>s are coming from the model&rsquo;s <code>state_dict</code> so that they&rsquo;re not freed after the backward pass.</p>
+<h3 id="ad_matrix-mathematics"><code>ad_matrix</code> Mathematics</h3>
+<p>To build the GPT-2, we need functions that calculate the softmax and RMS Norm of a vector of <code>ad_value</code> nodes. This has to be done in a way that makes sure the correct connections are made between new <code>ad_value</code>s and the inputs. Consider <code>ad_matrix_softmax</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>ad_matrix* <span style="color:#008b45">ad_matrix_softmax</span>(ad_matrix* x){
+</span></span><span style="display:flex;"><span>	<span style="color:#008b45">assert</span>(x!=<span style="color:#658b00">NULL</span>);
+</span></span><span style="display:flex;"><span>	ad_matrix* out = <span style="color:#008b45">ad_matrix_alloc</span>(x-&gt;rows, x-&gt;cols);
+</span></span><span style="display:flex;"><span>	ad_value* xmax = <span style="color:#008b45">ad_value_alloc</span>(<span style="color:#008b45">ad_matrix_max</span>(x));
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">for</span>(uint i = <span style="color:#b452cd">0</span>; i &lt; x-&gt;size; i++){
+</span></span><span style="display:flex;"><span>		<span style="color:#008b45">ad_value_free</span>(out-&gt;data[i]);
+</span></span><span style="display:flex;"><span>		out-&gt;data[i] = <span style="color:#008b45">ad_value_sub</span>(x-&gt;data[i], xmax);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">for</span>(uint i = <span style="color:#b452cd">0</span>; i &lt; x-&gt;size; i++){
+</span></span><span style="display:flex;"><span>		out-&gt;data[i] = <span style="color:#008b45">ad_value_exp</span>(out-&gt;data[i]);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	ad_value* sum = <span style="color:#008b45">ad_value_alloc</span>(<span style="color:#b452cd">0.0</span>);
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">for</span>(uint i = <span style="color:#b452cd">0</span>; i &lt; x-&gt;size; i++){
+</span></span><span style="display:flex;"><span>		sum = <span style="color:#008b45">ad_value_add</span>(sum, out-&gt;data[i]);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">for</span>(uint i = <span style="color:#b452cd">0</span>; i &lt; x-&gt;size; i++){
+</span></span><span style="display:flex;"><span>		out-&gt;data[i] = <span style="color:#008b45">ad_value_div</span>(out-&gt;data[i], sum);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">return</span> out;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>You&rsquo;ll notice something interesting; at every iteration of the first loop, the <code>ad_value</code> at index <code>i</code> is being freed. This is done to make sure that the assignment <code>out-&gt;data[i] = ad_value_sub(x-&gt;data[i], xmax)</code> results in the elements of <code>out</code> holding the correct memory addresses of the new <code>ad_value</code>s generated by <code>ad_value_sub</code>. Not freeing the <code>ad_value</code>s created by <code>ad_matrix_alloc</code> before the assignment would immediately orphan the memory, leading to a memory leak.</p>
+<p>In the second loop though, this is not done for the opposite reason - we <em>need</em> to track the dependence of the inputs of the expression <code>out-&gt;data[i] = ad_value_exp(out-&gt;data[i])</code>. As this loop is run, ad_value_exp creates a new node whose <code>previous[0]</code> points to the old     <code>out-&gt;data[i]</code>, which is exactly how the computation graph gets built.</p>
+<p>This idea is carried forward in other matrix-specific functions: <code>ad_matrix_matmul</code> and <code>ad_matrix_rmsnorm</code>.</p>
 <h2 id="local-gradients-and-backpropagation">Local Gradients and Backpropagation</h2>
+<p>The gradient of a function with respect to its inputs really boils down to an accumulation of the local gradients over the computational graph. Here&rsquo;s where the design decisions made until now come to a head.</p>
+<p>To calculate the gradient of an <code>ad_value</code> with respect to its inputs, <code>ad_value_backward</code> is called:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00688b;font-weight:bold">void</span> <span style="color:#008b45">ad_value_backward</span>(ad_value* out){
+</span></span><span style="display:flex;"><span>	<span style="color:#00688b;font-weight:bold">size_t</span> graph_size = GRAPH_SIZE;
+</span></span><span style="display:flex;"><span>	ad_value** sorted = (ad_value**)<span style="color:#008b45">malloc</span>(GRAPH_SIZE * <span style="color:#8b008b;font-weight:bold">sizeof</span>(ad_value*));
+</span></span><span style="display:flex;"><span>	ad_value** visited = (ad_value**)<span style="color:#008b45">malloc</span>(GRAPH_SIZE * <span style="color:#8b008b;font-weight:bold">sizeof</span>(ad_value*));
+</span></span><span style="display:flex;"><span>	<span style="color:#00688b;font-weight:bold">size_t</span> sorted_size = <span style="color:#b452cd">0</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#00688b;font-weight:bold">size_t</span> visited_size = <span style="color:#b452cd">0</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#008b45">graph_sort</span>(out, &amp;sorted, &amp;sorted_size, &amp;visited, &amp;visited_size, &amp;graph_size);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	out-&gt;grad = <span style="color:#b452cd">1.0</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">for</span>(<span style="color:#00688b;font-weight:bold">int</span> i = sorted_size - <span style="color:#b452cd">1</span>; i &gt;=<span style="color:#b452cd">0</span>; i--){
+</span></span><span style="display:flex;"><span>		<span style="color:#008b45">grad</span>(sorted[i]);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">for</span>(<span style="color:#00688b;font-weight:bold">int</span> i = <span style="color:#b452cd">0</span>; i &lt; (<span style="color:#00688b;font-weight:bold">int</span>)sorted_size-<span style="color:#b452cd">1</span>; i++){
+</span></span><span style="display:flex;"><span>		sorted[i]-&gt;visited = <span style="color:#658b00">false</span>;
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">if</span>(!sorted[i]-&gt;is_param){
+</span></span><span style="display:flex;"><span>			<span style="color:#008b45">ad_value_free</span>(sorted[i]);
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	sorted[sorted_size - <span style="color:#b452cd">1</span>]-&gt;visited = <span style="color:#658b00">false</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#008b45">free</span>(sorted);
+</span></span><span style="display:flex;"><span>	<span style="color:#008b45">free</span>(visited);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Let&rsquo;s step through this function.</p>
+<ol>
+<li>
+<p><code>GRAPH_SIZE</code> is a macro set initially as 8192. Overreaching on <code>GRAPH_SIZE</code> might lead to a stack overflow later in the execution.</p>
+</li>
+<li>
+<p><code>ad_value** sorted</code> stores the topologically sorted computational graph.</p>
+</li>
+<li>
+<p><code>ad_value** visited</code> stores the visited nodes, to prevent a node&rsquo;s local gradient from being accumulated multiple times. This is especially relevant with shared nodes.</p>
+</li>
+<li>
+<p><code>graph_sort</code> is a recursive function which topologically sorts the initial computational graph.</p>
+</li>
+<li>
+<p><code>out-&gt;grad = 1.0</code> to initiate the backprop</p>
+</li>
+<li>
+<p>For every node in the sorted graph, the local gradient is calculated, accumulated and passed to the next node.</p>
+</li>
+<li>
+<p>Every non-parameter node - intermediate node not belonging to the state dict - is freed.</p>
+</li>
+<li>
+<p>Every parameter-node is flagged as not visited to prepare for the next iteration of backprop</p>
+</li>
+</ol>
+<p>The calculation and accumulation of the local gradients makes use of the <code>enum OPTYPE</code> of the <code>ad_value</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00688b;font-weight:bold">void</span> <span style="color:#008b45">grad</span>(ad_value* out){
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">switch</span>(out-&gt;op){
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> NONE: 
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> ADD: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad; 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">1</span>]-&gt;grad += out-&gt;grad; 
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> SUB: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad; 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">1</span>]-&gt;grad += -out-&gt;grad; 
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> MUL: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * out-&gt;previous[<span style="color:#b452cd">1</span>]-&gt;data; 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">1</span>]-&gt;grad += out-&gt;grad * out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;data; 
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> DIV: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * <span style="color:#b452cd">1</span> / out-&gt;previous[<span style="color:#b452cd">1</span>]-&gt;data; 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">1</span>]-&gt;grad += out-&gt;grad * (-out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;data / (<span style="color:#008b45">pow</span>(out-&gt;previous[<span style="color:#b452cd">1</span>]-&gt;data, <span style="color:#b452cd">2</span>))); 
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> POW:
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * out-&gt;previous[<span style="color:#b452cd">1</span>]-&gt;data * <span style="color:#008b45">pow</span>(out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;data, out-&gt;previous[<span style="color:#b452cd">1</span>]-&gt;data - <span style="color:#b452cd">1</span>) ;
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">1</span>]-&gt;grad += out-&gt;grad * (out-&gt;data * <span style="color:#008b45">log</span>(out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;data)) ;
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>;
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> SIN: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * <span style="color:#008b45">cos</span>(out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;data);
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> COS: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * -<span style="color:#b452cd">1</span> * <span style="color:#008b45">sin</span>(out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;data);
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> TANH: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * (<span style="color:#b452cd">1</span> - <span style="color:#008b45">pow</span>(out-&gt;data, <span style="color:#b452cd">2</span>));
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> SIGMOID: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * out-&gt;data * (<span style="color:#b452cd">1</span> - out-&gt;data);
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> RELU: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * ((out-&gt;data &gt; <span style="color:#b452cd">0</span> ) ? <span style="color:#b452cd">1</span> : <span style="color:#b452cd">0</span>);
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> LOG: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * (<span style="color:#b452cd">1.0</span> / out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;data);
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> EXP: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * (out-&gt;data);
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">case</span> NEG: 
+</span></span><span style="display:flex;"><span>			out-&gt;previous[<span style="color:#b452cd">0</span>]-&gt;grad += out-&gt;grad * (-<span style="color:#b452cd">1</span>);
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>; 
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The initial <code>GRAPH_SIZE</code> is set to 8192. If the number of nodes in the computational graph exceeds this, a <code>realloc</code> is triggered in <code>graph_sort</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#00688b;font-weight:bold">void</span> <span style="color:#008b45">graph_sort</span>(ad_value* out, ad_value*** sorted, <span style="color:#00688b;font-weight:bold">size_t</span>* sorted_size, ad_value*** visited, <span style="color:#00688b;font-weight:bold">size_t</span>* visited_size, <span style="color:#00688b;font-weight:bold">size_t</span>* capacity){
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">if</span>(out-&gt;visited) <span style="color:#8b008b;font-weight:bold">return</span>;
+</span></span><span style="display:flex;"><span>	out-&gt;visited = <span style="color:#658b00">true</span>; 
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">if</span>(*visited_size &gt;= *capacity){
+</span></span><span style="display:flex;"><span>		*capacity *= <span style="color:#b452cd">2</span>; 
+</span></span><span style="display:flex;"><span>		*visited = <span style="color:#008b45">realloc</span>(*visited, *capacity * <span style="color:#8b008b;font-weight:bold">sizeof</span>(ad_value*));
+</span></span><span style="display:flex;"><span>		*sorted = <span style="color:#008b45">realloc</span>(*sorted, *capacity * <span style="color:#8b008b;font-weight:bold">sizeof</span>(ad_value*));
+</span></span><span style="display:flex;"><span>		<span style="color:#008b45">assert</span>(*sorted != <span style="color:#658b00">NULL</span>);
+</span></span><span style="display:flex;"><span>		<span style="color:#008b45">assert</span>(*visited != <span style="color:#658b00">NULL</span>);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	(*visited)[*visited_size] = out;
+</span></span><span style="display:flex;"><span>	(*visited_size)++;
+</span></span><span style="display:flex;"><span>	<span style="color:#8b008b;font-weight:bold">for</span>(<span style="color:#00688b;font-weight:bold">int</span> i = <span style="color:#b452cd">0</span>; i &lt; NUM_PREVS; i++){
+</span></span><span style="display:flex;"><span>		<span style="color:#8b008b;font-weight:bold">if</span>(!out-&gt;previous[i])
+</span></span><span style="display:flex;"><span>			<span style="color:#8b008b;font-weight:bold">break</span>;
+</span></span><span style="display:flex;"><span>		<span style="color:#008b45">graph_sort</span>(out-&gt;previous[i], sorted, sorted_size, visited, visited_size, capacity);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	(*sorted)[*sorted_size] = out;
+</span></span><span style="display:flex;"><span>	(*sorted_size)++;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>All the pieces for a homegrown scalar-valued backpropagation engine are now in place. The actual GPT-2 forward pass and training code are contained in <a href="https://github.com/agastyapatri/microgpt-c/blob/main/utils.c">utils.c</a>, and follows closely the method described in <a href="https://karpathy.github.io/2026/02/12/microgpt/#:~:text=hundreds%20of%20billions.-,Architecture,-The%20model%20architecture">the &ldquo;Architecture&rdquo; section of the original blog post</a>, along with the memory management described earlier.</p>
+<h2 id="performance">Performance</h2>
+<p>microgpt-c was trained for 1000 steps with the following hyperparameters:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#1e889b">#define N_EMBD 16    						</span><span style="color:#228b22">//	embedding dimension 
+</span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span><span style="color:#1e889b">#define N_HEAD 4							</span><span style="color:#228b22">//	number of attention heads 
+</span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span><span style="color:#1e889b">#define N_LAYER 1							</span><span style="color:#228b22">//	number of layers 
+</span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span><span style="color:#1e889b">#define GPT_BLOCK_SIZE 16					</span><span style="color:#228b22">//	maximum sequence length
+</span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span><span style="color:#1e889b">#define HEAD_DIM (int)(N_EMBD / N_HEAD) 	</span><span style="color:#228b22">// dimensionality of each head
+</span></span></span><span style="display:flex;"><span><span style="color:#228b22"></span><span style="color:#1e889b">#define LEARNING_RATE (float)1.0e-2
+</span></span></span><span style="display:flex;"><span><span style="color:#1e889b">#define BETA1 0.85              
+</span></span></span><span style="display:flex;"><span><span style="color:#1e889b">#define BETA2 0.99
+</span></span></span><span style="display:flex;"><span><span style="color:#1e889b">#define NUM_STEPS 1000
+</span></span></span><span style="display:flex;"><span><span style="color:#1e889b">#define EPS_ADAM (float)1e-8
+</span></span></span><span style="display:flex;"><span><span style="color:#1e889b">#define TEMPERATURE 0.5
+</span></span></span></code></pre></div><p>The actual training + inference code was compiled with the settings <code>-std=c17 -Wall -Wextra -O3 -ffast-math -DNDEBUG -march=native</code>, and profiled with <a href="https://man7.org/linux/man-pages/man1/perf.1.html">perf</a>, a statistical profiler provided by the Linux kernel.</p>
+<p>Running <code>perf stat</code> gives:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>Performance counter stats for &#39;./main&#39;:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>             0      context-switches:u               #      0.0 cs/sec  cs_per_second     
+</span></span><span style="display:flex;"><span>             0      cpu-migrations:u                 #      0.0 migrations/sec  migrations_per_second
+</span></span><span style="display:flex;"><span>       673,913      page-faults:u                    # 216895.2 faults/sec  page_faults_per_second
+</span></span><span style="display:flex;"><span>      3,107.09 msec task-clock:u                     #      1.0 CPUs  CPUs_utilized       
+</span></span><span style="display:flex;"><span>    18,532,638      cpu_core/branch-misses/u         #      0.5 %  branch_miss_rate         (99.81%)
+</span></span><span style="display:flex;"><span> 4,033,483,079      cpu_core/branches/u              #   1298.2 M/sec  branch_frequency     (99.81%)
+</span></span><span style="display:flex;"><span> 6,912,081,802      cpu_core/cpu-cycles/u            #      2.2 GHz  cycles_frequency       (99.81%)
+</span></span><span style="display:flex;"><span>19,537,667,088      cpu_core/instructions/u          #      2.8 instructions  insn_per_cycle  (99.81%)
+</span></span><span style="display:flex;"><span>    10,118,524      cpu_atom/branch-misses/u         #      0.3 %  branch_miss_rate         (0.03%)
+</span></span><span style="display:flex;"><span> 4,632,166,754      cpu_atom/branches/u              #   1490.8 M/sec  branch_frequency     (0.03%)
+</span></span><span style="display:flex;"><span> 6,998,143,681      cpu_atom/cpu-cycles/u            #      2.3 GHz  cycles_frequency       (0.06%)
+</span></span><span style="display:flex;"><span>12,501,881,248      cpu_atom/instructions/u          #      2.2 instructions  insn_per_cycle  (0.10%)
+</span></span><span style="display:flex;"><span>         TopdownL1 (cpu_core)                        #      4.8 %  tma_bad_speculation    
+</span></span><span style="display:flex;"><span>                                                     #     17.2 %  tma_frontend_bound       (99.81%)
+</span></span><span style="display:flex;"><span>                                                     #     32.5 %  tma_backend_bound      
+</span></span><span style="display:flex;"><span>                                                     #     45.5 %  tma_retiring             (99.81%)
+</span></span><span style="display:flex;"><span>         TopdownL1 (cpu_atom)                        #     34.0 %  tma_backend_bound        (0.16%)
+</span></span><span style="display:flex;"><span>                                                     #     13.8 %  tma_frontend_bound       (0.13%)
+</span></span><span style="display:flex;"><span>                                                     #     16.2 %  tma_bad_speculation    
+</span></span><span style="display:flex;"><span>                                                     #     36.0 %  tma_retiring             (0.10%)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   3.231840422 seconds time elapsed
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   2.188536000 seconds user
+</span></span><span style="display:flex;"><span>   1.024326000 seconds sys
+</span></span></code></pre></div><p>Some things to note:</p>
 <ul>
-<li>Write about the <code>ad_value_backward</code></li>
-<li>Write about the performance speedup seen from checking <code>visited</code> instead of traversing the visited array and</li>
-<li>Should the gpt_forward function be talked about?</li>
-<li>Add a discussion on the <code>perf</code> output</li>
-<li>Add a discussion on some performance improvements - a future blog post maybe?</li>
+<li>
+<p>The program spends nearly 31% of the total execution time executing system calls (<code>sys</code> time). This is a surprisingly large number.</p>
+</li>
+<li>
+<p>There are a total of 673,913 page faults. Let&rsquo;s look a bit deeper into how the memory allocation is actually happening.</p>
+<p>When <code>./main</code> is run, the operating system makes a set of contiguous memory locations - called the Virtual Address Space (VAS) - available to it. This memory is initially <em>unmapped</em> to any memory in the physical RAM.</p>
+<p>Whenever an <code>ad_value</code> is created, <code>malloc</code> is called, which requests a pointer to a range of virtual addresses in the VAS. No physical memory is actually allocated yet. Whenever the data in that memory needs to be accessed, say by dereferencing an instance of <code>ad_value*</code>, the kernel realizes that there is no physical RAM mapped to it yet. This triggers an exception called a Page Fault.</p>
+<p>The CPU then pauses execution of <code>./main</code> and jumps into <a href="https://en.wikipedia.org/wiki/Kernel_(operating_system)#:~:text=is%20an%20exokernel.-,Monolithic%20kernels,-%5Bedit%5D">Kernel Mode</a>. The kernel fetches a 4KB page of physical memory, updates the page tables to map the virtual address to this physical memory, and hands control back to the program. The instruction is tried again.</p>
+<p>This process happened <em>~674,000</em> times!</p>
+<p><code>perf</code> mentions <code>1.024326000 seconds sys</code>, meaning that ~1.024 seconds of the total execution time, roughly 31%, was spent by the CPU in performing this juggling of tasks. This number needs to be as low as possible.</p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/Alder_Lake">Intel&rsquo;s 12th Generation Core Processors (Alder Lake)</a> introduced the combined Performance-Core / Efficient-Core architecture, similar to <a href="https://en.wikipedia.org/wiki/ARM_big.LITTLE">ARM big.LITTLE</a>. In the <code>perf stat</code> output, <code>cpu_core</code> refers to the P-Cores and <code>cpu_atom</code> the E-Cores.
+Both <code>cpu_core</code> and <code>cpu_atom</code> have ~2.2 instructions per cycle, indicating that the CPU is kept busy throughout the program execution, but modern CPUs can reach 4-6 instructions per cycle. 2.2 is middling, but not terrible.</p>
+</li>
+<li>
+<p>Modern CPUs use Speculative Execution. When the CPU encounters an if statement or a for loop, it &ldquo;guesses&rdquo; which way the code will go and starts executing those instructions in advance. If the CPU mispredicts the path of the code, then typically around 15-20 CPU cycles are wasted.
+Because these loops repeat thousands of times with a very predictable exit condition, the CPU&rsquo;s Branch Predictor learns the pattern almost immediately. The P-Cores have a 0.5% branch misprediction rate, meaning that only a few misses occur and the amount of wasted CPU time is minimal. The E-Core numbers are less statistically reliable.</p>
+</li>
 </ul>
+<p>The <code>TopdownL1</code> statistics are specific to Intel&rsquo;s Topdown Microarchitecture Analysis - a way to understand where the CPU&rsquo;s time goes. I&rsquo;ll cover this in a later blog post, as my understanding of CPU&rsquo;s lower-level minutiae increases.</p>
+<h2 id="looking-ahead">Looking ahead</h2>
+<p>As it stands, the profiler data points to a flaw in the <code>microgpt-c</code>&rsquo;s automatic differentiation engine - the thousands of <code>malloc</code> calls, thousands of resultant page faults and wasted CPU time. An impactful fix would be to move to <a href="https://en.wikipedia.org/wiki/Region-based_memory_management">Arena Allocation</a>, in which a large chunk of memory would be allocated and mapped upfront. This directly addresses the sys time and the memory bound costs the profiler indicated.</p>
+<p>There is also a critical shortcoming in the design of <code>ad_matrix</code>. In the interest of simplicity, I&rsquo;ve implemented <code>ad_matrix</code> as a collection of several <code>ad_value</code> structs, each of which is a dyanmically allocated entity. Operations on <code>ad_matrix</code> sometimes replace the elements of the initially contiguous <code>ad_value**</code> buffer with other <code>ad_value*</code> memory addresses. This would kill the cache locality benefit of a contiguous memory buffer, meaning that the CPU is spending extra cycles fetching from RAM. This <em>does</em> explain some of the <code>perf stat</code> outputs which point to the execution being extremely memory-bottlenecked, with the CPU cache sitting idle instead of doing what it was designed to do.</p>
+<p>I&rsquo;ll have to address both of these issues in a later post. Stay tuned!</p>
 
         </section>
         <div class="post-tags">
