@@ -1,11 +1,10 @@
 +++
 date        = '2026-04-08T06:53:50+05:30'
 draft       = false
-title       = 'microgpt-c'
+title       = '`microgpt-c` Part 1: Automatic Differentiation'
 tags        = ["llms", "c"] 
-description  = "Training a tiny GPT to generate new names, from scratch, in C." 
+description  = "Creating a Backprop Engine for [`microgpt-c`](https://github.com/agastyapatri/microgpt-c/)" 
 +++
-#   A Backprop Engine for [`microgpt-c`](https://github.com/agastyapatri/microgpt-c/)
 [microgpt](https://karpathy.github.io/2026/02/12/microgpt/) is a 200 line python implementation of GPT-2. It is trained on a set of names, and attempts to train a model to generate new ones. Following this, I wanted to try porting it to C as an exercise in learning the language. **This post will lay out my approach to implementing an autodifferentiation engine with nothing but the C standard library**.  It's recommended that one reads the original post, along with [growingswe's visual explainer](https://growingswe.com/blog/microgpt) for more background on GPT-2 itself.
 
 The full code for this project can be found on [Github](https://github.com/agastyapatri/microgpt-c) 
@@ -59,7 +58,7 @@ You'll notice that **all `ad_value` instances are heap allocated.** This is done
 
 Understandably, having thousands of `malloc` and `free` calls is not something anyone prefers. Arena allocators would speed things up significantly. For simplicity's sake however, I've kept it as is. 
 
-The `ref_count` parameter is my humble attempt at implementing the managing of `ad_value` lifetimes with reference counting. The idea is that each `ad_value` keeps track of how many other `ad_value`s refer to it. When the reference counter hits 0, the `ad_value` memory is freed. The main reason to do this is that accidentally freeing a random `ad_value` in the computational graph and trying to backpropagate through it would be catastrophic; a problem given the colloquialism of "use-after-free". This would also be a nightmare to debug for a novice C programmer. This is slightly different from the textbook definition of the technique, in which a resource is shared among multiple objects which point to it, and is freed when the reference counter hits 0. 
+The `ref_count` parameter is my humble attempt at implementing the managing of `ad_value` lifetimes with reference counting. The idea is that each `ad_value` keeps track of how many other `ad_value`s refer to it. When the reference counter hits 0, the `ad_value` memory is freed. The main reason to do this is that accidentally freeing a random `ad_value` in the computational graph and trying to backpropagate through it would be catastrophic; the infamous "use-after-free". This would also be a nightmare to debug for a novice C programmer. This is slightly different from the textbook definition of the technique, in which a resource is shared among multiple objects which point to it, and is freed when the reference counter hits 0. 
 
 `ad_value`s are freed recursively: 
 ```c
@@ -77,7 +76,7 @@ void ad_value_free(ad_value* val){
 Simply calling the function `ad_value_free` decrements the target's reference counter - one less ad_value now refers to it. If no other `ad_value`s are referring to it, it is let go. This triggers an `ad_value_free` call for the parent nodes as well, because a reference to the parent is being freed. To understand this better, one needs to understand how a link between two `ad_value`s is formed.
 
 ##  `ad_value` Mathematics
-One of the primary assumptions of automatic differentiation (autodiff) is that any function represented programmatically can be decomposed into a sequence of more primitive calculations; a principle known as atomicity. We need to make sure that the library of mathematical functions for `ad_value` enables atomicity and the use of the [chain rule](https://en.wikipedia.org/wiki/Chain_rule). 
+One of the primary assumptions of automatic differentiation (autodiff) is that any function represented programmatically can be decomposed into a sequence of more primitive "atomic" calculations. We need to make sure that the library of mathematical functions for `ad_value` enables atomicity and the use of the [chain rule](https://en.wikipedia.org/wiki/Chain_rule). 
 
 To that end, I've chosen to represent these atomic operations as an `enum`: 
 
@@ -434,7 +433,25 @@ Some things to note:
 The `TopdownL1` statistics are specific to Intel's Topdown Microarchitecture Analysis - a way to understand where the CPU's time goes. I'll cover this in a later blog post, as my understanding of CPU's lower-level minutiae increases. 
 
 ##  Looking ahead
-As it stands, the profiler data points to a flaw in the `microgpt-c`'s automatic differentiation engine - the thousands of `malloc` calls, thousands of resultant page faults and wasted CPU time. An impactful fix would be to move to [Arena Allocation](https://en.wikipedia.org/wiki/Region-based_memory_management), in which a large chunk of memory would be allocated and mapped upfront. This directly addresses the sys time and the memory bound costs the profiler indicated. I'll have to address this in a later blog post.  
+As it stands, the profiler data points to a flaw in the `microgpt-c`'s automatic differentiation engine - the thousands of `malloc` calls, thousands of resultant page faults and wasted CPU time. An impactful fix would be to move to [Arena Allocation](https://en.wikipedia.org/wiki/Region-based_memory_management), in which a large chunk of memory would be allocated and mapped upfront. This directly addresses the sys time and the memory bound costs the profiler indicated. 
 
-microgptc.md
-Displaying microgptc.md.
+There is also a critical shortcoming in the design of `ad_matrix`. In the interest of simplicity, I've implemented `ad_matrix` as a collection of several `ad_value` structs, each of which is a dyanmically allocated entity. Operations on `ad_matrix` sometimes replace the elements of the initially contiguous `ad_value**` buffer with other `ad_value*` memory addresses. This would kill the cache locality benefit of a contiguous memory buffer, meaning that the CPU is spending extra cycles fetching from RAM. This _does_ explain some of the `perf stat` outputs which point to the execution being extremely memory-bottlenecked, with the CPU cache sitting idle instead of doing what it was designed to do.
+
+I'll have to address both of these issues in a later post. Stay tuned! 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
