@@ -12,6 +12,7 @@ pygmentscodefencesguesssyntax = true
 	subtitle = "Machine Learning + Physics, Systems and more!"
 	customCSS = ["css/custom.css"]
 	summaryLength = 50
+	mainSections = ["posts"]
 
 [[params.social]]
 name = "GitHub"
