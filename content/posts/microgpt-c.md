@@ -1,13 +1,13 @@
 +++
 date        = '2026-04-08T06:53:50+05:30'
 draft       = false
-title       = '`microgpt-c` Part 1: Automatic Differentiation'
+title       = 'microgpt-c Part 1: Automatic Differentiation and Baseline Performance'
 tags        = ["llms", "c"] 
-description  = "Creating a Backprop Engine for [`microgpt-c`](https://github.com/agastyapatri/microgpt-c/)" 
+description  = "Creating a Backprop Engine for a tiny GPT" 
 +++
 [microgpt](https://karpathy.github.io/2026/02/12/microgpt/) is a 200 line python implementation of GPT-2. It is trained on a set of names, and attempts to train a model to generate new ones. Following this, I wanted to try porting it to C as an exercise in learning the language. **This post will lay out my approach to implementing an autodifferentiation engine with nothing but the C standard library**.  It's recommended that one reads the original post, along with [growingswe's visual explainer](https://growingswe.com/blog/microgpt) for more background on GPT-2 itself.
 
-The full code for this project can be found on [Github](https://github.com/agastyapatri/microgpt-c) 
+The full code for this project can be found on [Github](https://github.com/agastyapatri/microgpt-c). Note that the current state of this project is focused on simplicity and ease of grasp.
 
 ##  Scalar Valued [Reverse Mode Automatic Differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation#Reverse_accumulation:~:text=0%3B%20%7D-,Reverse%20accumulation) 
 The (admittedly handwavy) recipe for implementing your own backprop engine is simple: 
