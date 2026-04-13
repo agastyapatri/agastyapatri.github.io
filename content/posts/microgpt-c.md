@@ -1,5 +1,5 @@
 +++
-date        = '2026-04-14T07:45:50+05:30'
+date        = '2026-04-14T19:45:50+05:30'
 draft       = false
 title       = 'microgpt-c Part 1: Automatic Differentiation and Baseline Performance'
 tags        = ["llms", "c"] 
