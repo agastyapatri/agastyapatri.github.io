@@ -2,10 +2,10 @@
 date        = '2026-10-25T16:01:02+05:30'
 draft       = false
 title       = 'On the design of a tensor library in C++'
-tags        = ["llms", "c"] 
+tags        = ["linear algebra", "c++"] 
 description  = "carbon, part 1: templates, explicit instantiation and type-dependency" 
 +++
-> **Toolchain used for every capture:** clang 22.1.8, GCC 16.2.1, libstdc++ 16, GNU binutils 2.46.1 (`ld.bfd`, `nm`), LLVM `llvm-nm`, Fedora 44, x86-64. Library built with `-std=c++20 -DCARBON_USE_BLAS` against OpenBLAS, the same way `CMakeLists.txt` builds it. Paths in compiler output are shortened.
+<!-- > **Toolchain used for every capture:** clang 22.1.8, GCC 16.2.1, libstdc++ 16, GNU binutils 2.46.1 (`ld.bfd`, `nm`), LLVM `llvm-nm`, Fedora 44, x86-64. Library built with `-std=c++20 -DCARBON_USE_BLAS` against OpenBLAS, the same way `CMakeLists.txt` builds it. Paths in compiler output are shortened. -->
 
 ---
 
@@ -249,15 +249,14 @@ These results are for one small TU; a TU that used more of the API would widen t
 ## 6. Tradeoffs
 
 **Gains**
-- Faster user builds: 0.66 s vs 1.76 s for the measured TU (§7).
-- A hidden implementation: no CBLAS in the public interface (§7).
+- Faster user builds: 0.66 s vs 1.76 s for the measured TU 
+- A hidden implementation: no CBLAS in the public interface 
 - One place to read every definition, and a header that reads like an API reference.
 
 **Costs**
-* **Link-time errors for anything missing**, and they all look the same (§3.3).
-* **A hand-maintained list:** 44 lines today. One more floating-point type costs **14 lines**: `template class`, `operator<<`, `dot`, `gemm`, `gemv`, and 9 unary functions.
-* **Placement sensitivity:** the list must come after the definitions, or clang silently builds an almost empty library (§1).
-
+* Link-time errors for anything missing, and they all look the same.
+* A hand-maintained list:** 44 lines today. One more floating-point type costs **14 lines**: `template class`, `operator<<`, `dot`, `gemm`, `gemv`, and 9 unary functions.
+* Placement sensitivity: the list must come after the definitions, or clang silently builds an almost empty library.
 * Every instantiation block gains lines (14 per type, see above).
 
 
