@@ -1,5 +1,5 @@
 +++
-date        = '2026-10-25T19:45:50+05:30'
+date        = '2026-10-25T16:01:02+05:30'
 draft       = false
 title       = 'On the design of a tensor library in C++'
 tags        = ["llms", "c"] 
