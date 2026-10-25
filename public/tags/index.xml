@@ -1,34 +1,54 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Tags on Agastya Patri</title>
-    <link>http://localhost:1313/tags/</link>
-    <description>Recent content in Tags on Agastya Patri</description>
-    <generator>Hugo</generator>
-    <language>en-us</language>
-    <copyright>© Agastya Patri</copyright>
-    <lastBuildDate>Mon, 13 Apr 2026 19:45:50 +0530</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>C</title>
-      <link>http://localhost:1313/tags/c/</link>
-      <pubDate>Mon, 13 Apr 2026 19:45:50 +0530</pubDate>
-      <guid>http://localhost:1313/tags/c/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Llms</title>
-      <link>http://localhost:1313/tags/llms/</link>
-      <pubDate>Mon, 13 Apr 2026 19:45:50 +0530</pubDate>
-      <guid>http://localhost:1313/tags/llms/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>CPP</title>
-      <link>http://localhost:1313/tags/cpp/</link>
-      <pubDate>Mon, 13 Apr 2026 06:53:50 +0530</pubDate>
-      <guid>http://localhost:1313/tags/cpp/</guid>
-      <description></description>
-    </item>
-  </channel>
+	<channel>
+		<title>Tags on Agastya Patri</title>
+		<link>http://localhost:1313/tags/</link>
+		<description>Recent content in Tags on Agastya Patri</description>
+		<generator>Hugo</generator>
+		<language>en-us</language>
+		
+		
+		
+			<copyright>© Agastya Patri</copyright>
+		
+		
+			<lastBuildDate>Sun, 25 Oct 2026 19:45:50 +0530</lastBuildDate>
+		
+			<atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+			<item>
+				<title>C</title>
+				<link>http://localhost:1313/tags/c/</link>
+				<pubDate>Mon, 13 Apr 2026 19:45:50 +0530</pubDate>
+				<guid>http://localhost:1313/tags/c/</guid>
+				<description></description>
+			</item>
+			<item>
+				<title>Llms</title>
+				<link>http://localhost:1313/tags/llms/</link>
+				<pubDate>Mon, 13 Apr 2026 19:45:50 +0530</pubDate>
+				<guid>http://localhost:1313/tags/llms/</guid>
+				<description></description>
+			</item>
+			<item>
+				<title>C&#43;&#43;</title>
+				<link>http://localhost:1313/tags/c&#43;&#43;/</link>
+				<pubDate>Mon, 19 Oct 2026 19:45:50 +0530</pubDate>
+				<guid>http://localhost:1313/tags/c&#43;&#43;/</guid>
+				<description></description>
+			</item>
+			<item>
+				<title>Linear Algebra</title>
+				<link>http://localhost:1313/tags/linear-algebra/</link>
+				<pubDate>Mon, 19 Oct 2026 19:45:50 +0530</pubDate>
+				<guid>http://localhost:1313/tags/linear-algebra/</guid>
+				<description></description>
+			</item>
+			<item>
+				<title>Performance</title>
+				<link>http://localhost:1313/tags/performance/</link>
+				<pubDate>Mon, 19 Oct 2026 19:45:50 +0530</pubDate>
+				<guid>http://localhost:1313/tags/performance/</guid>
+				<description></description>
+			</item>
+	</channel>
 </rss>

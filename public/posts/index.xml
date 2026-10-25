@@ -1,27 +1,47 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Posts on Agastya Patri</title>
-    <link>http://localhost:1313/posts/</link>
-    <description>Recent content in Posts on Agastya Patri</description>
-    <generator>Hugo</generator>
-    <language>en-us</language>
-    <copyright>© Agastya Patri</copyright>
-    <lastBuildDate>Mon, 13 Apr 2026 19:45:50 +0530</lastBuildDate>
-    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>microgpt-c Part 1: Automatic Differentiation and Baseline Performance</title>
-      <link>http://localhost:1313/posts/microgpt-c/</link>
-      <pubDate>Mon, 13 Apr 2026 19:45:50 +0530</pubDate>
-      <guid>http://localhost:1313/posts/microgpt-c/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;https://karpathy.github.io/2026/02/12/microgpt/&#34;&gt;microgpt, by Andrej Karpathy&lt;/a&gt; is a 200 line python implementation of GPT-2. It is trained on a set of names, and attempts to train a model to generate new ones. Following this, I wanted to try porting it to C as an exercise in learning the language. &lt;strong&gt;This post will lay out my approach to implementing an autodifferentiation engine with nothing but the C standard library&lt;/strong&gt;.  It&amp;rsquo;s recommended that one reads the original post, along with &lt;a href=&#34;https://growingswe.com/blog/microgpt&#34;&gt;growingswe&amp;rsquo;s visual explainer&lt;/a&gt; for more background on GPT-2 itself.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Benzene</title>
-      <link>http://localhost:1313/posts/benzene/</link>
-      <pubDate>Mon, 13 Apr 2026 06:53:50 +0530</pubDate>
-      <guid>http://localhost:1313/posts/benzene/</guid>
-      <description></description>
-    </item>
-  </channel>
+	<channel>
+		<title>Posts on Agastya Patri</title>
+		<link>http://localhost:1313/posts/</link>
+		<description>Recent content in Posts on Agastya Patri</description>
+		<generator>Hugo</generator>
+		<language>en-us</language>
+		
+		
+		
+			<copyright>© Agastya Patri</copyright>
+		
+		
+			<lastBuildDate>Sun, 25 Oct 2026 19:45:50 +0530</lastBuildDate>
+		
+			<atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+			<item>
+				<title>On the design of a tensor library in C&#43;&#43;</title>
+				<link>http://localhost:1313/posts/carbon_1__design/</link>
+				<pubDate>Sun, 25 Oct 2026 19:45:50 +0530</pubDate>
+				<guid>http://localhost:1313/posts/carbon_1__design/</guid>
+				<description>&lt;blockquote&gt;&#xA;&lt;p&gt;&lt;strong&gt;Toolchain used for every capture:&lt;/strong&gt; clang 22.1.8, GCC 16.2.1, libstdc++ 16, GNU binutils 2.46.1 (&lt;code&gt;ld.bfd&lt;/code&gt;, &lt;code&gt;nm&lt;/code&gt;), LLVM &lt;code&gt;llvm-nm&lt;/code&gt;, Fedora 44, x86-64. Library built with &lt;code&gt;-std=c++20 -DCARBON_USE_BLAS&lt;/code&gt; against OpenBLAS, the same way &lt;code&gt;CMakeLists.txt&lt;/code&gt; builds it. Paths in compiler output are shortened.&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;C++ templates are blueprints used by the compiler to generate classes when they are instantiated with a specific type. Class templates usually take the form of a single header file because the compiler needs to see the full implementation to generate concrete code at the point of use: the template&amp;rsquo;s definition is visible and a concrete type is known at compile time.&lt;/p&gt;</description>
+			</item>
+			<item>
+				<title>How execution policies are used in `carbon`</title>
+				<link>http://localhost:1313/posts/carbon_7__execution_policies/</link>
+				<pubDate>Mon, 19 Oct 2026 19:45:50 +0530</pubDate>
+				<guid>http://localhost:1313/posts/carbon_7__execution_policies/</guid>
+				<description></description>
+			</item>
+			<item>
+				<title>Towards LLM inference</title>
+				<link>http://localhost:1313/posts/carbon_8__towards_llm_inference/</link>
+				<pubDate>Mon, 19 Oct 2026 19:45:50 +0530</pubDate>
+				<guid>http://localhost:1313/posts/carbon_8__towards_llm_inference/</guid>
+				<description></description>
+			</item>
+			<item>
+				<title>microgpt-c</title>
+				<link>http://localhost:1313/posts/microgpt-c/</link>
+				<pubDate>Mon, 13 Apr 2026 19:45:50 +0530</pubDate>
+				<guid>http://localhost:1313/posts/microgpt-c/</guid>
+				<description>&lt;p&gt;&lt;a href=&#34;https://karpathy.github.io/2026/02/12/microgpt/&#34;&gt;microgpt, by Andrej Karpathy&lt;/a&gt; is a 200 line python implementation of GPT-2. It is trained on a set of names, and attempts to train a model to generate new ones. Following this, I wanted to try porting it to C as an exercise in learning the language. &lt;strong&gt;This post will lay out my approach to implementing an autodifferentiation engine with nothing but the C standard library&lt;/strong&gt;.  It&amp;rsquo;s recommended that one reads the original post, along with &lt;a href=&#34;https://growingswe.com/blog/microgpt&#34;&gt;growingswe&amp;rsquo;s visual explainer&lt;/a&gt; for more background on GPT-2 itself.&lt;/p&gt;</description>
+			</item>
+	</channel>
 </rss>

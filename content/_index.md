@@ -1,8 +1,8 @@
 +++
-author = "Hugo Authors"
+author = "Agastya Patri"
 +++
 
-I'm a Research Engineer at SIMULIA. The overarching theme of my work over the past few years has been to use Machine Learning to improve the experience of performing physics simulations. This has led me down a variety of paths: Physics Informed Neural Networks, Operator Learning, Surrogate Modelling, Single Image Super Resolution. My current fascination is the intersection of Machine Learning and Systems Programming; how can we peel back the layers of the tech onion, and design high performance ML systems from the ground up?    
+I'm a Research Engineer at SIMULIA. The overarching theme of my work over the past few years has been to use Machine Learning to improve the experience of performing physics simulations. This has led me down a variety of paths: Physics Informed Neural Networks, Operator Learning, Surrogate Modelling, Single Image Super Resolution. 
 
 <div class="social-links">
     <a href="https://github.com/agastyapatri" target="_blank">

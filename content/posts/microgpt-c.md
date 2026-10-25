@@ -1,9 +1,9 @@
 +++
 date        = '2026-04-13T19:45:50+05:30'
 draft       = false
-title       = 'microgpt-c Part 1: Automatic Differentiation and Baseline Performance'
+title       = 'microgpt-c'
 tags        = ["llms", "c"] 
-description  = "Creating a Backprop Engine for a tiny GPT" 
+description  = "A supremely tiny GPT in C" 
 +++
 [microgpt, by Andrej Karpathy](https://karpathy.github.io/2026/02/12/microgpt/) is a 200 line python implementation of GPT-2. It is trained on a set of names, and attempts to train a model to generate new ones. Following this, I wanted to try porting it to C as an exercise in learning the language. **This post will lay out my approach to implementing an autodifferentiation engine with nothing but the C standard library**.  It's recommended that one reads the original post, along with [growingswe's visual explainer](https://growingswe.com/blog/microgpt) for more background on GPT-2 itself.
 
