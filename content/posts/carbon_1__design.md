@@ -5,7 +5,7 @@ title       = 'On the design of a tensor library in C++'
 tags        = ["linear algebra", "c++"] 
 description  = "carbon, part 1: templates, explicit instantiation and type-dependency" 
 +++
-<!-- > **Toolchain used for every capture:** clang 22.1.8, GCC 16.2.1, libstdc++ 16, GNU binutils 2.46.1 (`ld.bfd`, `nm`), LLVM `llvm-nm`, Fedora 44, x86-64. Library built with `-std=c++20 -DCARBON_USE_BLAS` against OpenBLAS, the same way `CMakeLists.txt` builds it. Paths in compiler output are shortened. -->
+> **Toolchain used for every capture:** clang 22.1.8, GCC 16.2.1, libstdc++ 16,Fedora 44, x86-64. Library built with `-std=c++20 -DCARBON_USE_BLAS` against OpenBLAS, the same way `CMakeLists.txt` builds it.
 
 ---
 
@@ -13,8 +13,8 @@ description  = "carbon, part 1: templates, explicit instantiation and type-depen
 
 C++ templates are blueprints used by the compiler to generate classes when they are instantiated with a specific type. Class templates usually take the form of a single header file because the compiler needs to see the full implementation to generate concrete code at the point of use: the template's definition is visible and a concrete type is known at compile time. 
 
-`carbon` is a C++20 tensor library I'm writing which splits the core tensor class template into the usual header+translation-unit pair anyway. **Explicit Instantiation** is used to bring the two constraints (visible definition + concrete type) in a single place so that the translation unit compiles in isolation without any link-time errors.
-The advantages of seperating the interface from the translation unit, as I see it, are preserved. An unexpected adantage that I ran into is that I now have the ability to **enforce a type set onto the library.**
+`carbon` is a C++20 tensor library I'm writing which splits the core tensor class template into the usual header+translation-unit pair anyway. **Explicit Instantiation** is used to bring the two constraints (visible definition + concrete type) into a single place so that user translation units link without errors.
+The advantages of separating the interface from the implementation, as I see it, are preserved. An unexpected side effect that I ran into is that I now have the ability to **enforce a type set onto the library.**
 
 This post is a discussion on the design of the library and some decisions I had to make while building it.
 
@@ -31,7 +31,7 @@ This post is a discussion on the design of the library and some decisions I had 
 Explicit instantiation for a constrained set of datatypes:
 
 ```cpp
-//	explicit instantation, apparently
+//	explicit instantiation, apparently
 template class tensor<f32>;
 template class tensor<f64>;
 template class tensor<i32>;
@@ -50,11 +50,11 @@ template tensor<f32> sin(const tensor<f32>& inp);
 ---
 
 ## 2. Two kinds of type restriction
-Even though `tensor<T>` has been explicitly instantiated for `f32, f64, i32, i64` only, some members in the class only compile, or make sense for floating point tensors. 
-For instance, `std::normal_distribution<T>` and `std::uniform_real_distribution<T>` only are allowed to be with floating points, enforced with a `static_assert` by libstdc++. 
+Even though `tensor<T>` has been explicitly instantiated for `f32, f64, i32, i64` only, some members in the class only compile, or only make sense, for floating-point tensors. 
+For instance, `std::normal_distribution<T>` and `std::uniform_real_distribution<T>` may only be instantiated with floating-point types, enforced with a `static_assert` by libstdc++. 
 Some functions (sigmoid, log, exp, tanh) would compile but yield nonsensical data if used with `i32` and `i64`. 
 
-To prevent both of these behaviours, I rely on the requires clause, part of C++20’s concepts feature. It attaches a compile-time predicate to a declaration: if the predicate is false for a given `T`, that member simply doesn’t exist for that type, and its body is never instantiated. 
+To prevent both of these behaviours, I rely on the `requires` clause, part of C++20's concepts feature. It attaches a compile-time predicate to a declaration: if the predicate is false for a given `T`, that member is removed from consideration for that type, and its body is never instantiated. 
 
 This also lets `template class tensor<i32>` skip the floating-point-only members instead of failing the build. The alternative would be to explicitly instantiate only the valid members for each type, but then a call like `tensor<i32>::log_()` would still compile against the header and only fail with a link-time error, rather than a clear compile-time one at the call site.
 
@@ -80,8 +80,7 @@ requires std::floating_point<T>;
 
 - **Floating-point only (14):** `rand_normal`, `randn`, `randu`, `randn_he`, `randu_he`, `randn_xavier`, `randu_xavier`, `log_`, `exp_`, `sigmoid_`, `sin_`, `cos_`, `tanh_`, `pow_`.
 - **Integral only (1):** `randint`.
-- `template class tensor<i32>;` compiles, because the explicit instantiation skips every member whose constraint `int` doesn't satisfy. The rule works **in both directions**: `tensor<f32>` never instantiates `randint`. Evidence (full dump in Appendix B):
-
+- `template class tensor<i32>;` compiles, because the explicit instantiation skips every member whose constraint `int` doesn't satisfy. The rule works **in both directions**: `tensor<f32>` never instantiates `randint`.
 - Calling a skipped member is a **compile-time error at the call site**, because the user's compiler can see the `requires` clause in the header:
 
 ```cpp
@@ -92,6 +91,7 @@ t.exp_();   // the compiler raises an error here.
 (The error text is shown next to the link error in §2.3.)
 
 There is a bit of nuance here: some clauses are needed to compile and others are a choice:
+
 | constraint removed | result | why |
 |---|---|---|
 | `randint`'s `requires std::integral<T>` | **`template class tensor<f32>;` no longer compiles** | `std::uniform_int_distribution<float>` hits a libstdc++ `static_assert`: *"template argument must be an integral type"*, reported at `carbon.cpp:864`, the `template class` line |
@@ -122,9 +122,9 @@ template <typename U> tensor<U> square(const tensor<U>& inp);
 undefined reference to `carbon::tensor<int> carbon::exp<int>(carbon::tensor<int> const&)'
 ```
 
-### 2.3 The inconsistency (the hook of the post)
+### 2.3 The inconsistency
 
-**Point.** Same operation, same type, two spellings, two different phases of failure:
+Same operation, same type, two spellings, two different phases of failure:
 
 |  | `t.exp_()` on a `ti32` | `carbon::exp(t)` on a `ti32` |
 |---|---|---|
@@ -134,7 +134,7 @@ undefined reference to `carbon::tensor<int> carbon::exp<int>(carbon::tensor<int>
 | points at | your source line *and* the constraint in `carbon.hpp` | an offset in `main`'s `.text` section |
 | tells you why | yes: `'int' does not satisfy 'floating_point'` | no: just "undefined reference" |
 
-**Show: the two errors side by side** (clang 22; full output, including GCC's, in Appendix C):
+The two errors side by side (clang 22):
 
 <table>
 <tr><th>Compile time: <code>t.exp_()</code></th><th>Link time: <code>carbon::exp(t)</code></th></tr>
@@ -166,7 +166,7 @@ clang++: error: linker command failed with
 
 ---
 
-## 3. Friend templates need their own instantiation lines
+## 3. Non-member function templates need their own instantiation lines
 
 These declarations inside the class:
 
@@ -178,19 +178,19 @@ friend tensor<U> gemm(const tensor<U> &inp1, const tensor<U> &inp2);
 ```
 
 make *separate namespace-scope function templates* friends of `tensor<T>`. They aren't members, so `template class tensor<f32>;` doesn't instantiate them. That's why the list carries 4× `operator<<`, 4× `gemm`, 4× `gemv` and 4× `dot`, on top of the four `template class` lines.
-- `template <typename U> friend` befriends **every** specialization, so `tensor<f32>` grants friendship to `exp<i64>`. That's wider than needed, but harmless.
+- `template <typename U> friend` befriends **every** specialization, so `tensor<f32>` grants friendship to `gemm<i64>`. That's wider than needed, but harmless.
 - `operator<<` is declared *only* as a friend (no namespace-scope declaration in the header), so the only way to find it is argument-dependent lookup. That's fine for `std::cout << t`. The free math functions, by contrast, are declared at namespace scope (`carbon.hpp:31–54`) before being befriended.
 
 ---
 
 ## 4. Three ways the code becomes type-dependent in carbon
 
-**Point.** carbon uses three different mechanisms to make behavior depend on `T`. Putting them side by side:
+carbon uses three different mechanisms to make behavior depend on `T`. Putting them side by side:
 
 | mechanism | where | decided | "wrong" type gets… | granularity |
 |---|---|---|---|---|
 | `requires` on a member | `exp_`, `randn`, `randint`, … (`carbon.hpp:106–143`) | overload resolution at the **call site** | no member: compile error | one member exists or doesn't |
-| `if constexpr` | `operator<<` (`carbon.cpp:361–363`) | inside **one function body**, per instantiation | nothing is wrong; it just takes the other branch | one statement |
+| `if constexpr` | `operator<<` (`carbon.cpp:361–363`) | inside **one function body**, per instantiation | nothing is wrong; the statement is skipped | one statement |
 | full specialization | `blas<f32>`, `blas<f64>` (`blas.hpp:119–191`) | **which class** is used | the primary template (generic loops) | whole implementation |
 
 ```cpp
@@ -233,6 +233,8 @@ carbon can hide BLAS only because the definitions live in the `.cpp`:
 /usr/bin/clang++ ... main.cpp.o -o main  libcarbon.a /usr/lib64/libopenblas.so /usr/lib64/libtbb.so.12.17
 ```
 
+`libtbb` is there for a different reason: TBB and `_GLIBCXX_USE_TBB_PAR_BACKEND` are `PUBLIC`, so they reach consumers deliberately.
+
 **The build-time payoff, measured.** I compared a small user TU (`randn`, `exp_`, `gemm`, `+`, `sigmoid` on `tf32`) two ways. "Split" includes `carbon.hpp` as-is. "Header-only proxy" includes all of `carbon.cpp`'s definitions as a header, minus the instantiation list, so only what's used gets instantiated. clang 22, `-O3`, `hyperfine`, 10 runs each:
 
 | compile | mean | preprocessed lines |
@@ -251,24 +253,17 @@ These results are for one small TU; a TU that used more of the API would widen t
 **Gains**
 - Faster user builds: 0.66 s vs 1.76 s for the measured TU 
 - A hidden implementation: no CBLAS in the public interface 
-- One place to read every definition, and a header that reads like an API reference.
+- One place to read every definition, and a header that reads like an API reference
 
 **Costs**
-* Link-time errors for anything missing, and they all look the same.
-* A hand-maintained list:** 44 lines today. One more floating-point type costs **14 lines**: `template class`, `operator<<`, `dot`, `gemm`, `gemv`, and 9 unary functions.
-* Placement sensitivity: the list must come after the definitions, or clang silently builds an almost empty library.
-* Every instantiation block gains lines (14 per type, see above).
+- Link-time errors for anything missing, and they all look the same.
+- **A hand-maintained list:** 44 lines today. One more floating-point type costs **14 lines**: `template class`, `operator<<`, `dot`, `gemm`, `gemv`, and 9 unary functions.
+- Placement sensitivity: the list must come after the definitions, or the compiler silently builds an almost empty library.
 
 
 
 
-<!---->
-<!-- * **The constrained members partly scale for free, and that's where the danger is.** On GCC 16, `std::floating_point<std::float16_t>` and `std::floating_point<std::bfloat16_t>` are both true (checked with `static_assert`). One `template class tensor<f16>;` line would therefore switch on all 14 floating-point members, including `randn`/`randu`. But `<random>` only defines `normal_distribution` and `uniform_real_distribution` for `float`, `double` and `long double` (`[rand.req.genl]`). The concept that kept `int` out (§3.1) is too permissive for the new types. Consider a carbon-specific concept for "types `<random>` accepts". -->
-<!-- * **Toolchain reality:** `<stdfloat>` is C++23, and carbon builds as C++20. With clang 22 + libstdc++ 16 (the compiler in `compile_commands.json`), `std::float16_t` isn't declared at all; GCC 16 has it. -->
-<!-- * **`blas<T>` assumes one type for everything.** OpenBLAS has `cblas_sbgemm`, but it takes `bfloat16` inputs with a **`float` output** and `float` alpha/beta, so it doesn't fit `blas<T>::gemm(..., T* C, ...)`. The BLIS `cblas.h` here has no bf16 entry points at all. That's a natural cliffhanger for the BLAS post. -->
-<!-- * Possible remedy to mention: generate the blocks from a type list (an X-macro such as `CARBON_FOR_EACH_FLOAT(X)`), so adding a type means one line plus a `blas` decision. -->
-<!---->
-Having a closed set of types is a decision that has both upsides and downsides.
+A closed set of types is the price of splitting a template into a header and a `.cpp`: carbon supports exactly the types I wrote lines for, and every other type fails at compile time or link time, depending on how you ask.
 
 ---
 
@@ -297,7 +292,7 @@ Having a closed set of types is a decision that has both upsides and downsides.
 |---|:-:|:-:|:-:|:-:|---|
 | `operator<<` | ✓ | ✓ | ✓ | ✓ | precision set via `if constexpr` |
 | `dot` | ✓ | ✓ | ✓ | ✓ | f32/f64 → `cblas_?dot`; ints → generic |
-| `gemm`, `gemv` | ✓ | ✓ | ✓⚠ | ✓⚠ | ⚠ generic kernel currently wrong (`is_trans`, §6) |
+| `gemm`, `gemv` | ✓ | ✓ | ✓⚠ | ✓⚠ | ⚠ generic kernel currently wrong (`is_trans` uses `t = CblasTrans`, so it always returns true); f32/f64 hit it too without `CARBON_USE_BLAS` |
 | `relu`, `square`, `cube` | ✓ | ✓ | ✓ | ✓ | |
 | `sin`, `cos`, `tanh`, `log`, `exp`, `sigmoid` | ✓ | ✓ | L | L | would compile for ints; left out by choice |
 | `matmul` | L | L | L | L | declared + befriended, never defined |
