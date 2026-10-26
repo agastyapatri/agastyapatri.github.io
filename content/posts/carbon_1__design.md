@@ -13,10 +13,10 @@ description  = "carbon, part 1: templates, explicit instantiation and type-depen
 
 C++ templates are blueprints used by the compiler to generate classes when they are instantiated with a specific type. Class templates usually take the form of a single header file because the compiler needs to see the full implementation to generate concrete code at the point of use: the template's definition is visible and a concrete type is known at compile time. 
 
-`carbon` is a C++20 tensor library I'm writing which splits the core tensor class template into the usual header+translation-unit pair anyway. **Explicit Instantiation** is used to bring the two constraints (visible definition + concrete type) into a single place so that user translation units link without errors.
+[`carbon` ](https://github.com/agastyapatri/carbon)  is a C++20 tensor library I'm writing which splits the core tensor class template into the usual header+translation-unit pair anyway. **Explicit Instantiation** is used to bring the two constraints (visible definition + concrete type) into a single place so that user translation units link without errors.
 The advantages of separating the interface from the implementation, as I see it, are preserved. An unexpected side effect that I ran into is that I now have the ability to **enforce a type set onto the library.**
 
-This post is a discussion on the design of the library and some decisions I had to make while building it.
+This post is a discussion on the design of the library and some decisions I had to make while building it. You can find the code [here.](https://github.com/agastyapatri/carbon) 
 
 ---
 
