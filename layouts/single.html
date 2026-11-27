@@ -1,0 +1,24 @@
+{{ define "main" }}
+<article>
+  <header class="post-header">
+    <p class="meta">
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
+      · {{ .ReadingTime }} min read
+      {{- with .GetTerms "tags" }} ·
+        {{ range $i, $t := . }}{{ if $i }}, {{ end }}<a href="{{ $t.RelPermalink }}">{{ $t.LinkTitle }}</a>{{ end }}
+      {{- end }}
+    </p>
+    <h1>{{ .Title | markdownify }}</h1>
+    {{ with .Description }}<p class="dek">{{ . | markdownify }}</p>{{ end }}
+  </header>
+  <div class="prose">
+    {{ .Content }}
+  </div>
+</article>
+{{ if eq .Section "posts" }}
+<nav class="post-nav" aria-label="More posts">
+  {{ with .PrevInSection }}<a href="{{ .RelPermalink }}"><span class="meta">Newer</span>{{ .Title | markdownify }}</a>{{ else }}<span></span>{{ end }}
+  {{ with .NextInSection }}<a class="older" href="{{ .RelPermalink }}"><span class="meta">Older</span>{{ .Title | markdownify }}</a>{{ end }}
+</nav>
+{{ end }}
+{{ end }}

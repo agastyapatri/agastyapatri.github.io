@@ -1,24 +1,14 @@
 {{ define "main" }}
-<main>
-    <h1 class="page-title">Projects</h1>
-    
-    <div class="projects-description" style="margin-bottom: 30px; line-height: 1.6; opacity: 0.8;">
-        <p>
-			A collection of my technical work and code.
-        </p>
+<h1 class="page-title">{{ .Title }}</h1>
+<p class="dek">{{ .Description | default "A collection of my technical work and code." }}</p>
+<ul class="post-list">
+  {{- range .Pages.ByDate.Reverse }}{{ $p := . }}
+  <li>
+    <time class="meta" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2006" }}</time>
+    <div>
+      <a class="post-link" href="{{ .Params.link | default .RelPermalink }}"{{ if .Params.link }} rel="noopener"{{ end }}>{{ $p.Title }}</a>{{ with $p.Description }}<p class="dek">{{ . | markdownify }}</p>{{ end }}
     </div>
-
-    <ul class="posts">
-        {{- range .Pages -}}
-        <li class="post">
-            {{ if .Params.link }}
-                <a href="{{ .Params.link }}" target="_blank" rel="noopener noreferrer">{{ .Title }}</a>
-            {{ else }}
-                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-            {{ end }}
-            <span class="meta">{{ .Date.Format "Jan 2, 2006" }}</span>
-        </li>
-        {{- end -}}
-    </ul>
-</main>
+  </li>
+  {{- end }}
+</ul>
 {{ end }}
