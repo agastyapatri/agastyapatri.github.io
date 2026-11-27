@@ -1,30 +1,41 @@
-name: Deploy Hugo site to GitHub Pages
+name: Deploy to GitHub Pages (agastyapatri.github.io)
+
+# The main site is built and hosted by Cloudflare Pages at agastyapatri.com.
+# This workflow keeps agastyapatri.github.io working. Once agastyapatri.com is
+# live, set REDIRECT_TO_NEW_DOMAIN to "true" so every old page redirects there.
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
+env:
+  HUGO_VERSION: 0.170.1
+  REDIRECT_TO_NEW_DOMAIN: "false"
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true  # needed for the Archie theme submodule
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
-          hugo-version: 'latest'
+          hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
       - name: Build
-        run: hugo --minify
+        run: hugo --minify --baseURL "https://agastyapatri.github.io/"
+
+      - name: Replace pages with redirects to agastyapatri.com
+        if: env.REDIRECT_TO_NEW_DOMAIN == 'true'
+        run: ./scripts/redirect-stubs.sh public https://agastyapatri.com
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,0 +1,5 @@
+{{ define "main" }}
+<p class="meta"><a href="{{ "tags/" | relURL }}">Tags</a></p>
+<h1 class="page-title">{{ .Title }}</h1>
+{{ partial "post-list.html" .Pages }}
+{{ end }}

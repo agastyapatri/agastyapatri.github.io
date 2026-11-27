@@ -1,0 +1,10 @@
+<header class="site-header">
+  <a class="site-title" href="{{ "/" | relURL }}">{{ site.Title }}</a>
+  <nav aria-label="Main">
+    {{- $current := . }}
+    {{- range site.Menus.main }}
+    <a href="{{ .URL }}"{{ if or ($current.IsMenuCurrent "main" .) ($current.HasMenuCurrent "main" .) }} aria-current="page"{{ end }}>{{ .Name }}</a>
+    {{- end }}
+    <a href="{{ "index.xml" | relURL }}">RSS</a>
+  </nav>
+</header>

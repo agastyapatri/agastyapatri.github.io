@@ -1,51 +1,55 @@
-baseURL = "https://agastyapatri.github.io/"
-languageCode = "en-us"
+baseURL = "https://agastyapatri.com/"
+locale = "en-US"
 title = "Agastya Patri"
-theme = "archie"
-copyright = "© Agastya Patri"
-pygmentsstyle = "perldoc"
-pygmentscodefences = true
-pygmentscodefencesguesssyntax = true
+copyright = "Agastya Patri"
+enableRobotsTXT = true
+
 [params]
-	mode = "light"
-	useCDN = false
-	subtitle = "Machine Learning + Physics, Systems and more!"
-	customCSS = ["css/custom.css"]
-	summaryLength = 50
-	mainSections = ["posts"]
+  description = "Machine Learning + Physics, Systems and more."
+  subtitle = "Machine learning · Physics · Systems"
+  mainSections = ["posts"]
+  recentPosts = 6
 
 [[params.social]]
-name = "GitHub"
-icon = "simple:github"
-url = "https://github.com/agastyapatri"
+  name = "GitHub"
+  url = "https://github.com/agastyapatri"
 
 [[params.social]]
-name = "Substack"
-icon = "simple:substack"
-url = "https://substack.com/@agastyapatri"
+  name = "Substack"
+  url = "https://substack.com/@agastyapatri"
 
-[[menu.main]]
-name = "Home"
-url = "/"
-weight = 1
+[menus]
+  [[menus.main]]
+    name = "Posts"
+    pageRef = "/posts"
+    weight = 1
+  [[menus.main]]
+    name = "Projects"
+    pageRef = "/projects"
+    weight = 2
+  [[menus.main]]
+    name = "Tags"
+    pageRef = "/tags"
+    weight = 3
 
-
-[[menu.main]]
-name = "Posts"
-url = "/posts"
-weight = 3
-
-[[menu.main]]
-name = "Projects"
-url = "/projects/"
-weight = 3
-
-[[menu.main]]
-name = "Tags"
-url = "/tags"
-weight = 5
+[taxonomies]
+  tag = "tags"
 
 [markup]
-	[markup.goldmark]
-		[markup.goldmark.renderer]
-			unsafe = true
+  [markup.goldmark.renderer]
+    unsafe = true
+  [markup.highlight]
+    noClasses = false
+    lineNos = false
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 3
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+  taxonomy = ["HTML"]
+  term = ["HTML", "RSS"]
+
+[services.rss]
+  limit = 20

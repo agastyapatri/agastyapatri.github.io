@@ -1,0 +1,12 @@
+{{/* Expects a slice of pages as context. */}}
+<ul class="post-list">
+  {{- range . }}
+  <li>
+    <time class="meta" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+    <div>
+      <a class="post-link" href="{{ .RelPermalink }}">{{ .Title | markdownify }}</a>{{ if .Draft }} <span class="draft">draft</span>{{ end }}
+      {{- with .Description }}<p class="dek">{{ . | markdownify }}</p>{{ end }}
+    </div>
+  </li>
+  {{- end }}
+</ul>
