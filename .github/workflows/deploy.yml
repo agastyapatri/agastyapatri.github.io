@@ -16,7 +16,7 @@ permissions:
 
 env:
   HUGO_VERSION: 0.170.1
-  REDIRECT_TO_NEW_DOMAIN: "false"
+  REDIRECT_TO_NEW_DOMAIN: "true"
 
 jobs:
   build:
