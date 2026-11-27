@@ -1,5 +1,7 @@
 <header class="site-header">
+  {{- if not .IsHome }}
   <a class="site-title" href="{{ "/" | relURL }}">{{ site.Title }}</a>
+  {{- end }}
   <nav aria-label="Main">
     {{- $current := . }}
     {{- range site.Menus.main }}
