@@ -23,20 +23,20 @@
 }
 
 :root {
-  --bg: #f7f3ec;        /* warm paper */
+  --bg: #f6eee0;        /* warm paper */
   --fg: #24211d;        /* ink */
   --muted: #6f6a62;     /* dates, tags, captions */
   --accent: #8f3a1d;    /* links: one colour, used sparingly */
-  --rule: #e3ddd2;      /* hairlines */
-  --code-bg: #efe9de;
+  --rule: #e4d9c6;      /* hairlines */
+  --code-bg: #eee4d2;
   --serif: "Source Serif 4", "Iowan Old Style", Charter, Georgia, serif;
   --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --measure: 40rem;     /* column width, about 68 characters */
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #17161a; --fg: #e7e3db; --muted: #9b968d;
-    --accent: #e39a78; --rule: #2c2a30; --code-bg: #1f1e23;
+    --bg: #1d2021; --fg: #e7e3db; --muted: #9b968d;
+    --accent: #e39a78; --rule: #34383a; --code-bg: #262a2b;
   }
 }
 
