@@ -29,4 +29,4 @@ Cloudflare Pages builds `main` on every push: build command `hugo --minify`, out
 
 `.github/workflows/deploy.yml` still publishes agastyapatri.github.io. After agastyapatri.com is live, set `REDIRECT_TO_NEW_DOMAIN: "true"` in that file so old links redirect to the new domain.
 
-Fonts: Source Serif 4 and JetBrains Mono, both under the SIL Open Font License (see `static/fonts/`).
+Fonts: [Libron](https://github.com/nicoverbruggen/libron) (v0.32, built from source) and JetBrains Mono, both under the SIL Open Font License (see `static/fonts/`).

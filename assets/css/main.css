@@ -1,15 +1,25 @@
 /* agastyapatri.com — one stylesheet, no framework.
-   To restyle the site, change the tokens in :root (and the dark block below). */
+   To restyle the site, change the colour tokens in :root (dark, the default) and :root[data-theme="light"]. */
 
 @font-face {
-  font-family: "Source Serif 4";
-  src: url("/fonts/source-serif-4-latin-opsz-normal.woff2") format("woff2");
-  font-weight: 200 900; font-style: normal; font-display: swap;
+  font-family: "Libron";
+  src: url("/fonts/Libron-Regular.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
 }
 @font-face {
-  font-family: "Source Serif 4";
-  src: url("/fonts/source-serif-4-latin-opsz-italic.woff2") format("woff2");
-  font-weight: 200 900; font-style: italic; font-display: swap;
+  font-family: "Libron";
+  src: url("/fonts/Libron-Italic.woff2") format("woff2");
+  font-weight: 400; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Libron";
+  src: url("/fonts/Libron-Bold.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Libron";
+  src: url("/fonts/Libron-BoldItalic.woff2") format("woff2");
+  font-weight: 700; font-style: italic; font-display: swap;
 }
 @font-face {
   font-family: "JetBrains Mono";
@@ -22,22 +32,23 @@
   font-weight: 700; font-display: swap;
 }
 
+/* Dark is the default theme. The toggle in the header sets data-theme="light". */
 :root {
+  --bg: #1d2021; --fg: #e7e3db; --muted: #9b968d;
+  --accent: #e39a78; --rule: #34383a; --code-bg: #262a2b;
+  --serif: "Libron", "Iowan Old Style", Charter, Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --measure: 40rem;     /* column width, about 68 characters */
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
   --bg: #f6eee0;        /* warm paper */
   --fg: #24211d;        /* ink */
   --muted: #6f6a62;     /* dates, tags, captions */
   --accent: #8f3a1d;    /* links: one colour, used sparingly */
   --rule: #e4d9c6;      /* hairlines */
   --code-bg: #eee4d2;
-  --serif: "Source Serif 4", "Iowan Old Style", Charter, Georgia, serif;
-  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --measure: 40rem;     /* column width, about 68 characters */
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1d2021; --fg: #e7e3db; --muted: #9b968d;
-    --accent: #e39a78; --rule: #34383a; --code-bg: #262a2b;
-  }
+  color-scheme: light;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -53,8 +64,7 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--serif);
-  font-optical-sizing: auto;
-  line-height: 1.65;
+    line-height: 1.65;
   font-variant-numeric: oldstyle-nums proportional-nums;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -75,7 +85,17 @@ a:hover { text-decoration-thickness: 0.12em; }
   gap: 0.25rem 1.5rem; margin-bottom: 3.5rem;
 }
 .site-title { color: var(--fg); text-decoration: none; font-weight: 600; letter-spacing: 0.01em; }
-.site-header nav { display: flex; gap: 1.1rem; }
+.site-header nav { display: flex; align-items: center; gap: 1.1rem; }
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.9rem; height: 1.9rem; margin: -0.3rem -0.3rem -0.3rem 0; padding: 0;
+  background: none; border: 0; border-radius: 50%; cursor: pointer; color: var(--muted);
+}
+.theme-toggle:hover { color: var(--fg); background: var(--code-bg); }
+.theme-toggle svg { width: 1.05rem; height: 1.05rem; }
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 .site-header nav a { color: var(--muted); text-decoration: none; }
 .site-header nav a:hover, .site-header nav a[aria-current] { color: var(--fg); }
 .site-footer {
@@ -85,8 +105,8 @@ a:hover { text-decoration-thickness: 0.12em; }
 .site-footer a { color: inherit; }
 
 /* Type scale */
-h1, h2, h3, h4 { line-height: 1.2; font-weight: 600; letter-spacing: -0.005em; }
-h1 { font-size: 2rem; margin: 0 0 0.5rem; font-weight: 650; }
+h1, h2, h3, h4 { line-height: 1.2; font-weight: 700; letter-spacing: -0.005em; }
+h1 { font-size: 2rem; margin: 0 0 0.5rem; }
 h2 { font-size: 1.35rem; margin: 2.75rem 0 0.75rem; }
 h3 { font-size: 1.1rem; margin: 2rem 0 0.5rem; }
 h4 { font-size: 1rem; margin: 1.5rem 0 0.5rem; font-style: italic; font-weight: 500; }
@@ -118,7 +138,7 @@ p, ul, ol, blockquote, table, pre { margin: 0 0 1.15rem; }
   padding: 0.6rem 0;
 }
 .post-list time { padding-top: 0.18rem; white-space: nowrap; }
-.post-link { color: var(--fg); text-decoration: none; font-weight: 550; }
+.post-link { color: var(--fg); text-decoration: none; font-weight: 700; }
 .post-link:hover { color: var(--accent); }
 .post-list .dek { font-size: 0.92rem; }
 .draft {
