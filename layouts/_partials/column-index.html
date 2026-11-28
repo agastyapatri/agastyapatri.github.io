@@ -1,0 +1,19 @@
+{{/* Two-column section index used by Writing and Projects.
+     Context: dict "page" (the section page) and "dateFormat". */}}
+{{- $p := .page }}
+<div class="cols">
+  <header class="cols-head">
+    <a class="back" href="{{ "/" | relURL }}">← {{ site.Title }}</a>
+    <h1 class="cols-title">{{ $p.Title }}</h1>
+    {{ with $p.Content }}<div class="prose">{{ . }}</div>{{ end }}
+  </header>
+  <ol class="cols-list">
+    {{- range $p.Pages.ByDate.Reverse }}
+    <li>
+      <a class="cols-link" href="{{ .Params.link | default .RelPermalink }}"{{ if .Params.link }} rel="noopener"{{ end }}>{{ .Title | markdownify }}</a>{{ if .Draft }} <span class="draft">draft</span>{{ end }}
+      {{- with .Description }}<p class="cols-dek">{{ . | markdownify }}</p>{{ end }}
+      <time class="meta" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format $.dateFormat }}</time>
+    </li>
+    {{- end }}
+  </ol>
+</div>
