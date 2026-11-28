@@ -14,13 +14,27 @@
   <script>
     (function () {
       var root = document.documentElement, btn = document.querySelector(".theme-toggle");
-      function label() { btn.setAttribute("aria-label", root.dataset.theme === "light" ? "Switch to dark mode" : "Switch to light mode"); }
+      function label() { btn.setAttribute("aria-label", root.dataset.theme === "dark" ? "Switch to light mode" : "Switch to dark mode"); }
       label();
-      btn.addEventListener("click", function () {
-        var next = root.dataset.theme === "light" ? "dark" : "light";
-        if (next === "light") root.dataset.theme = "light"; else delete root.dataset.theme;
+      function apply(next) {
+        if (next === "dark") root.dataset.theme = "dark"; else delete root.dataset.theme;
         try { localStorage.setItem("theme", next); } catch (e) {}
         label();
+      }
+      btn.addEventListener("click", function () {
+        var next = root.dataset.theme === "dark" ? "light" : "dark";
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!document.startViewTransition || reduce) { apply(next); return; }
+        // Circular reveal of the new theme, growing out from the centre of the button.
+        var r = btn.getBoundingClientRect();
+        var x = r.left + r.width / 2, y = r.top + r.height / 2;
+        var radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+        document.startViewTransition(function () { apply(next); }).ready.then(function () {
+          root.animate(
+            { clipPath: ["circle(0px at " + x + "px " + y + "px)", "circle(" + radius + "px at " + x + "px " + y + "px)"] },
+            { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" }
+          );
+        });
       });
     })();
   </script>

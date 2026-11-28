@@ -1,0 +1,14 @@
+{{ define "main" }}
+<article>
+  <header class="post-header">
+    <h1>{{ .Title }}</h1>
+  </header>
+  <div class="prose">
+    {{ .Content }}
+    {{ with site.Home.OutputFormats.Get "rss" }}
+    <p>Feed address:</p>
+    <pre><code>{{ .Permalink }}</code></pre>
+    {{ end }}
+  </div>
+</article>
+{{ end }}

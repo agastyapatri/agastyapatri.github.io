@@ -2,6 +2,6 @@
   <p>
     © {{ now.Year }} {{ site.Copyright }}
     {{- range site.Params.social }} · <a href="{{ .url }}" rel="me">{{ .name }}</a>{{ end }}
-    · <a href="{{ "index.xml" | relURL }}">RSS</a>
+    · <a href="{{ "subscribe/" | relURL }}">RSS</a>
   </p>
 </footer>

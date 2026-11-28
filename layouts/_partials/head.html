@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark light">
-<script>try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}</script>
+<meta name="color-scheme" content="light dark">
+<script>try{if(localStorage.getItem("theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}</script>
 {{- $title := cond .IsHome site.Title (printf "%s · %s" .Title site.Title) }}
 <title>{{ $title }}</title>
 {{- $desc := cond .IsHome site.Params.description (.Description | default .Summary | plainify) }}

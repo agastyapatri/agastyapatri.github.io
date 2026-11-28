@@ -1,5 +1,5 @@
 /* agastyapatri.com — one stylesheet, no framework.
-   To restyle the site, change the colour tokens in :root (dark, the default) and :root[data-theme="light"]. */
+   To restyle the site, change the colour tokens in :root (light, the default) and :root[data-theme="dark"]. */
 
 @font-face {
   font-family: "Newsreader";
@@ -32,23 +32,23 @@
   font-weight: 700; font-display: swap;
 }
 
-/* Dark is the default theme. The toggle in the header sets data-theme="light". */
+/* Light is the default theme. The toggle in the header sets data-theme="dark". */
 :root {
-  --bg: #1d2021; --fg: #e7e3db; --muted: #9b968d;
-  --accent: #e39a78; --rule: #34383a; --code-bg: #262a2b;
-  --serif: "Newsreader", serif;
-  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --measure: 40rem;     /* column width, about 68 characters */
-  color-scheme: dark;
-}
-:root[data-theme="light"] {
   --bg: #f6eee0;        /* warm paper */
   --fg: #24211d;        /* ink */
   --muted: #6f6a62;     /* dates, tags, captions */
   --accent: #8f3a1d;    /* links: one colour, used sparingly */
   --rule: #e4d9c6;      /* hairlines */
   --code-bg: #eee4d2;
+  --serif: "Newsreader", serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --measure: 40rem;     /* column width, about 68 characters */
   color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #1d2021; --fg: #e7e3db; --muted: #9b968d;
+  --accent: #e39a78; --rule: #34383a; --code-bg: #262a2b;
+  color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -93,9 +93,11 @@ a:hover { text-decoration-thickness: 0.12em; }
 }
 .theme-toggle:hover { color: var(--fg); background: var(--code-bg); }
 .theme-toggle svg { width: 1.05rem; height: 1.05rem; }
-.theme-toggle .icon-moon { display: none; }
-:root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
-:root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+.theme-toggle .icon-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+/* Theme switch: the script animates a circular clip on the new snapshot, so turn off the default cross-fade. */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 .site-header nav a { color: var(--muted); text-decoration: none; }
 .site-header nav a:hover, .site-header nav a[aria-current] { color: var(--fg); }
 .site-footer {
@@ -127,7 +129,7 @@ p, ul, ol, blockquote, table, pre { margin: 0 0 1.15rem; }
 /* Home */
 .intro { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.75rem; }
 .portrait { width: 5.5rem; height: 5.5rem; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.intro h1 { margin: 0; }
+.intro h1 { margin: 0; font-weight: 700; }
 .tagline { margin: 0.2rem 0 0; }
 .more { margin-top: 1.25rem; }
 
