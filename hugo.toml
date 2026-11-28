@@ -7,7 +7,7 @@ enableRobotsTXT = true
 [params]
   description = "Machine Learning + Physics, Systems and more."
   subtitle = "Machine learning · Physics · Systems"
-  mainSections = ["posts"]
+  mainSections = ["writing"]
   recentPosts = 6
 
 [[params.social]]
@@ -20,8 +20,8 @@ enableRobotsTXT = true
 
 [menus]
   [[menus.main]]
-    name = "Posts"
-    pageRef = "/posts"
+    name = "Writing"
+    pageRef = "/writing"
     weight = 1
   [[menus.main]]
     name = "Projects"

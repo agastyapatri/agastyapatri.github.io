@@ -1,0 +1,18 @@
+{{ define "main" }}
+<div class="writing">
+  <header class="writing-head">
+    <a class="back" href="{{ "/" | relURL }}">← {{ site.Title }}</a>
+    <h1 class="writing-title">{{ .Title }}</h1>
+    {{ with .Content }}<div class="prose">{{ . }}</div>{{ end }}
+  </header>
+  <ol class="writing-list">
+    {{- range .Pages }}
+    <li>
+      <a class="writing-link" href="{{ .RelPermalink }}">{{ .Title | markdownify }}</a>{{ if .Draft }} <span class="draft">draft</span>{{ end }}
+      {{- with .Description }}<p class="writing-dek">{{ . | markdownify }}</p>{{ end }}
+      <time class="meta" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+    </li>
+    {{- end }}
+  </ol>
+</div>
+{{ end }}

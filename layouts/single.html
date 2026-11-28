@@ -15,7 +15,7 @@
     {{ .Content }}
   </div>
 </article>
-{{ if eq .Section "posts" }}
+{{ if eq .Section "writing" }}
 <nav class="post-nav" aria-label="More posts">
   {{ with .PrevInSection }}<a href="{{ .RelPermalink }}"><span class="meta">Newer</span>{{ .Title | markdownify }}</a>{{ else }}<span></span>{{ end }}
   {{ with .NextInSection }}<a class="older" href="{{ .RelPermalink }}"><span class="meta">Older</span>{{ .Title | markdownify }}</a>{{ end }}

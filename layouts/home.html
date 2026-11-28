@@ -8,10 +8,10 @@
 </section>
 <div class="prose">{{ .Content }}</div>
 
-<h2 class="section-label">Recent posts</h2>
+<h2 class="section-label">Recent writing</h2>
 {{ $posts := where site.RegularPages "Section" "in" site.Params.mainSections }}
 {{ partial "post-list.html" (first site.Params.recentPosts $posts) }}
 {{ if gt (len $posts) site.Params.recentPosts }}
-<p class="more"><a href="{{ "posts/" | relURL }}">All posts →</a></p>
+<p class="more"><a href="{{ "writing/" | relURL }}">All writing →</a></p>
 {{ end }}
 {{ end }}

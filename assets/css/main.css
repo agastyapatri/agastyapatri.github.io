@@ -217,6 +217,31 @@ th { font-weight: 600; border-bottom-color: var(--muted); }
 .footnotes hr::before { content: none; }
 .footnotes hr { border-top: 1px solid var(--rule); }
 
+/* Writing index: oversized title on the left, list of pieces on the right */
+.wrap--wide { max-width: 64rem; }
+.writing { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 22rem); gap: 2rem 4rem; align-items: start; }
+.writing-head { position: sticky; top: 2rem; }
+.back { color: var(--fg); text-decoration: none; }
+.back:hover { color: var(--accent); }
+.writing-title {
+  font-size: clamp(4rem, 11vw, 8.5rem); font-weight: 400; line-height: 0.95;
+  letter-spacing: -0.025em; margin: 0.25rem 0 0 -0.04em;
+}
+.writing-list { list-style: none; padding: 0; margin: 2.6rem 0 0; }
+.writing-list li { border-top: 1px solid var(--fg); padding: 1rem 0 0; margin-bottom: 3.5rem; }
+.writing-link {
+  display: block; color: var(--fg); text-decoration: none;
+  font-size: 1.6rem; line-height: 1.2; letter-spacing: -0.01em;
+}
+.writing-link:hover { color: var(--accent); }
+.writing-dek { margin: 0.9rem 0 0.35rem; line-height: 1.4; }
+.writing-list .meta { display: block; }
+@media (max-width: 48rem) {
+  .writing { grid-template-columns: 1fr; gap: 0; }
+  .writing-head { position: static; }
+  .writing-list li { margin-bottom: 2.5rem; }
+}
+
 /* Prev / next */
 .post-nav {
   display: flex; justify-content: space-between; gap: 1.5rem;
