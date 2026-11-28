@@ -4,8 +4,8 @@
   {{ partial "head.html" . }}
 </head>
 <body>
-  {{- $writing := and (eq .Kind "section") (eq .Section "writing") }}
-  <div class="wrap{{ if $writing }} wrap--wide{{ end }}">
+  {{- $cols := (and (eq .Kind "section") (in (slice "writing" "projects") .Section)) }}
+  <div class="wrap{{ if $cols }} wrap--wide{{ end }}">
     {{ partial "header.html" . }}
     <main id="main">
       {{ block "main" . }}{{ end }}

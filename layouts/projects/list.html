@@ -1,14 +1,3 @@
 {{ define "main" }}
-<h1 class="page-title">{{ .Title }}</h1>
-<p class="dek">{{ .Description | default "A collection of my technical work and code." }}</p>
-<ul class="post-list">
-  {{- range .Pages.ByDate.Reverse }}{{ $p := . }}
-  <li>
-    <time class="meta" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2006" }}</time>
-    <div>
-      <a class="post-link" href="{{ .Params.link | default .RelPermalink }}"{{ if .Params.link }} rel="noopener"{{ end }}>{{ $p.Title }}</a>{{ with $p.Description }}<p class="dek">{{ . | markdownify }}</p>{{ end }}
-    </div>
-  </li>
-  {{- end }}
-</ul>
+{{ partial "column-index.html" (dict "page" . "dateFormat" "Jan 2006") }}
 {{ end }}

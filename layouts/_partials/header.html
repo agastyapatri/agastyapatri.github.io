@@ -1,5 +1,5 @@
 <header class="site-header">
-  {{- if not (or .IsHome (and (eq .Kind "section") (eq .Section "writing"))) }}
+  {{- if not (or .IsHome (and (eq .Kind "section") (in (slice "writing" "projects") .Section))) }}
   <a class="site-title" href="{{ "/" | relURL }}">{{ site.Title }}</a>
   {{- end }}
   <nav aria-label="Main">
