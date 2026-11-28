@@ -7,7 +7,7 @@
 {{- $desc := cond .IsHome site.Params.description (.Description | default .Summary | plainify) }}
 <meta name="description" content="{{ $desc | plainify | truncate 160 }}">
 <link rel="canonical" href="{{ .Permalink }}">
-<link rel="preload" href="{{ "fonts/NewsReader_14pt-Regular.woff2" | relURL }}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ "fonts/Newsreader_14pt-Regular.woff2" | relURL }}" as="font" type="font/woff2" crossorigin>
 {{- $css := resources.Get "css/main.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
 <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
