@@ -2,23 +2,23 @@
    To restyle the site, change the colour tokens in :root (dark, the default) and :root[data-theme="light"]. */
 
 @font-face {
-  font-family: "Libron";
-  src: url("/fonts/Libron-Regular.woff2") format("woff2");
+  font-family: "Source Serif 4";
+  src: url("/fonts/SourceSerif4-Regular.woff2") format("woff2");
   font-weight: 400; font-style: normal; font-display: swap;
 }
 @font-face {
-  font-family: "Libron";
-  src: url("/fonts/Libron-Italic.woff2") format("woff2");
+  font-family: "Source Serif 4";
+  src: url("/fonts/SourceSerif4-Italic.woff2") format("woff2");
   font-weight: 400; font-style: italic; font-display: swap;
 }
 @font-face {
-  font-family: "Libron";
-  src: url("/fonts/Libron-Bold.woff2") format("woff2");
+  font-family: "Source Serif 4";
+  src: url("/fonts/SourceSerif4-Bold.woff2") format("woff2");
   font-weight: 700; font-style: normal; font-display: swap;
 }
 @font-face {
-  font-family: "Libron";
-  src: url("/fonts/Libron-BoldItalic.woff2") format("woff2");
+  font-family: "Source Serif 4";
+  src: url("/fonts/SourceSerif4-BoldItalic.woff2") format("woff2");
   font-weight: 700; font-style: italic; font-display: swap;
 }
 @font-face {
@@ -36,7 +36,7 @@
 :root {
   --bg: #1d2021; --fg: #e7e3db; --muted: #9b968d;
   --accent: #e39a78; --rule: #34383a; --code-bg: #262a2b;
-  --serif: "Libron", "Iowan Old Style", Charter, Georgia, serif;
+  --serif: "Source Serif 4", "Iowan Old Style", Charter, Georgia, serif;
   --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --measure: 40rem;     /* column width, about 68 characters */
   color-scheme: dark;
